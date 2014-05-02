@@ -1,0 +1,143 @@
+﻿<html>
+<head>
+	<title>Tower Defense</title>
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
+	<script src="Script/librairie.js" type="text/javascript"></script>
+	<script src="Script/menu.js" type="text/javascript"></script>
+	<link rel="stylesheet" type="text/css" href="Styles/bootstrap.css">
+
+	
+	<style>
+		
+		#container{
+			border 2px solid blue;
+			margin: auto;
+			width: 70%;
+			height: 100%;
+			float: left;
+			margin-left : 80px;
+		}
+		
+		#menu{
+			width: 20%;
+			height: 800px;
+			float: left;
+			border : 1px solid black;
+		}
+		.tower:nth-of-type(1)
+		{
+			margin-top: 5px;
+		
+		
+		}
+		
+		.tower{
+			padding: 5px;
+			margin-bottom: 5px;
+			margin-left: 5px;
+			margin-right: 5px;
+			border: 1px solid black;
+			border-radius: 5px;
+		}
+		
+		.green-tower{
+			background-color : #00bc8c;
+			color: black;
+		}
+		
+		.red-tower{
+			background-color : #e74c3c;
+			color: black;
+		}
+		.purple-tower{
+			background-color : #AF85C9;
+			color: black
+		}
+		
+		green-tower, .red-tower, .purple-tower{
+			position: relative;
+			
+		}
+		
+		.towerTitle, .subTitleTower{
+				text-shadow: 2px 2px  5px black;		
+		}
+		.towerIcon{
+		
+			border: 1px solid black;
+			background-color: rgba(0,0,0,0.2);
+			width: 35px;
+			height: 35px;
+			position: absolute;
+			right: 30px;
+			top: 100px;
+		}
+		
+		.towerIcon:not(.activeTower):hover {  
+			background-color: rgba(0,0,0,0.3);
+		}
+		
+		.activeTower{
+			background-color: rgba(0,0,0,0.5);
+		}
+		
+	
+	
+	</style>
+</head>
+<body>
+	<h1>Tower Defense</h1>
+	
+	<div id="main">
+	
+		<aside id="Menu">
+			<div class="panel panel-primary tower">
+			  <div class="panel-heading">
+				<h2 class="panel-title towerTitle">Towers</h2>
+			  </div>
+			  <div class="panel-body">
+				<div class="list-group">
+					<div class="list-group-item green-tower">
+						<h4 class="list-group-item-heading subTitleTower">Green Tower</h4>
+						<p class="list-group-item-text">The green tower is a weak tower. It has a rapide rate of fire but does not inflict a lot of damage.</p>
+						<ul>
+							<li>Damage : 10 </li>
+							<li>Rate of fire: 0.10 seconde</li>
+							<li>Rage : 3 </li>
+						</ul>
+						<div class="towerIcon" id="green"></div>
+					</div>
+					<div class="list-group-item red-tower">
+						<h4 class="list-group-item-heading subTitleTower">Red Tower</h4>
+						<p class="list-group-item-text">The red tower is a missle tower. It it's hard but has a slow rate of fire.</p>
+						<ul>
+							<li>Damage : 50 </li>
+							<li>Rate of fire: 2 seconde</li>
+							<li>Rage : 5 </li>
+						</ul>
+						<div class="towerIcon" id="red"></div>
+					</div>
+					<div class="list-group-item purple-tower">
+						<h4 class="list-group-item-heading subTitleTower">Purple Tower</h4>
+						<p class="list-group-item-text">The purple tower is meant to reduce mobs speed, it does not inflict damage.</p>
+						<ul>
+							<li>Damage : 0 </li>
+							<li>Rate of fire: 0.5 seconde</li>
+							<li>Rage : 3 </li>
+						</ul>
+						<div class="towerIcon" id="purple"></div>
+					</div>
+				</div>
+			  </div>
+			</div>
+		</aside>
+		
+		<div id="container">
+			<canvas id="canvas">
+			<canvas>
+		</div>
+		
+		
+	</div>
+</body>
+</html>
