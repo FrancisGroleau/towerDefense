@@ -64,20 +64,24 @@ function initializeCanvas(){
 						else{
 							var color = "";
 							var range = "";
+							var colorRange = "";
 								if(activeTower == "green"){
 									color = "rgba(0,188,140,0.5)";
+									colorRange = "rgba(0,188,140,0.2)";
 									range = 130;
 								}
 								else if(activeTower == "red"){
 									color = "rgba(231,76,60,0.5)";
+									colorRange = "rgba(231,76,60,0.2)";
 									range = 260;
 								}
 								else if(activeTower == "purple"){
 									color = "rgba(175,133,201,0.5)";
+									colorRange = "rgba(175,133,201,0.2)";
 									range = 80;
 								}
 							
-							t = new tower(selectedCell.x, selectedCell.y, color, range);
+							t = new tower(selectedCell.x, selectedCell.y,selectedCell.width, selectedCell.height, color, range, colorRange);
 							selectedCell.tower = t;
 							//selectedCell.isHover = true;
 						}
@@ -98,10 +102,10 @@ function initializeCanvas(){
 				if(selectedCell.tower != null)
 				{
 					if (mousePos.y > selectedCell.y && mousePos.y < selectedCell.y + selectedCell.height && mousePos.x > selectedCell.x && mousePos.x < selectedCell.x + selectedCell.width) {
-						selectedCell.isHover = true;
+						selectedCell.tower.isHover = true;
 					}
 					else{
-						selectedCell.isHover = false;
+						selectedCell.tower.isHover = false;
 					}
 				}
 			}
@@ -268,45 +272,28 @@ function cell(x, y, width, height, borderColor, color, isPath){
 	cells[cellsIndex] = this;		
 	this.id = cellsIndex;
 	
+
+	if(this.tower != null && this.isHover)
+		this.tower.isHover = true;
+	
+	
 	
 	this.draw = function(){
-	//clear(this.x,this.y,this.width,this.height);
-	
-		if(!this.isPath){	
-			/*c.beginPath();
+		if(this.isPath){	
+			c.fillStyle = "rgba(4,33,48,0.5)";
+			c.fillRect(this.x,this.y,this.width,this.height);	
+		}
+		else{
+			//Draw the normal cell
+			c.beginPath();
 				c.lineWidth="1";
 				c.strokeStyle= this.borderColor;
-				//x,y,width,height
 				c.rect(this.x,this.y,this.width,this.height);
-			c.stroke(); */
-			
+			c.stroke(); 
 			
 			c.fillStyle = "rgba(0,0,0,0.5)";
 			c.fillRect(this.x,this.y,this.width,this.height);
-			
 		}
-		else{		
-			c.fillStyle = "rgba(69,14,14,0.5)";
-			c.fillRect(this.x,this.y,this.width,this.height);		
-		}
-		
-		if(this.tower != null){
-			if(this.isHover){
-				c.beginPath();
-				c.arc((this.x + (this.width / 2)), (this.y + (this.height / 2)), this.tower.range, (2 * Math.PI), 0, false);
-				c.fillStyle = this.tower.color;
-				c.fill();
-				c.lineWidth = 2;
-				//c.strokeStyle = this.tower.color;
-				//c.stroke();
-			}
-
-			
-				c.fillStyle = this.tower.color;
-				c.fillRect(this.x,this.y,this.width,this.height);
-		}
-		
-		
 		
 	}
 
@@ -331,18 +318,47 @@ function getMousePos(canvas, evt) {
     };
 }
 
-function tower(x, y, color, range){
+function tower(x, y, width, height, color, range, colorRange){
 
 	this.x = x;
 	this.y = y;
+	this.width = width;
+	this.height = height;
 	this.color = color;
+	this.colorRange = colorRange;
 	this.range = range;
+	this.isHover = false;
+	
+	this.draw = function(){
+			//draw the range
+			if(this.isHover){
+					c.beginPath();
+					c.arc((this.x + (this.width / 2)), (this.y + (this.height / 2)), this.range, (2 * Math.PI), 0, false);
+					c.fillStyle = this.colorRange;
+					c.fill();
+					c.lineWidth = 2;
+			}
+				//Draw the tower
+			c.fillStyle = this.color;
+			c.fillRect(this.x,this.y,this.width,this.height);
+	}
+	
 }
+
+
+
 setInterval(function(){
+		//draw all cells
 		for(var row = 0; row < NumberOfRow; row++){
 			for(var col = 0; col < NumberOfCol; col++){
 				grid[row][col].draw();			
 			}
 		}
-		
+		//draw all tower
+		for(var row = 0; row < NumberOfRow; row++){
+			for(var col = 0; col < NumberOfCol; col++){
+			if(grid[row][col].tower != null)
+				grid[row][col].tower.draw();			
+			}
+		}
 	},1000 / 60);
