@@ -48,7 +48,7 @@ function initializeCanvas(){
 	} 
 	//create the mobs for first round begin with 50
 	for(var i = 0; i < 50; i++){
-			new mob(0,0,grid[0][0].width,grid[0][0].height,"losange",100,0,"rgba(73,242,222,0.3)");
+			new mob(1,1,grid[0][0].width,grid[0][0].height,"losange",100,0,"rgba(73,242,222,0.3)");
 	}
 	
 
@@ -431,10 +431,10 @@ setInterval(function(){
 		if(gameStatus){
 		
 			for(var p in path){
-				for(var m in mobs){
+				/*for(var m in mobs){
 					mobs[m].nextCheckPointY = path[p].y;
 					mobs[m].nextCheckPointX = path[p].x;
-				}
+				}*/
 			
 				for(var m in mobs){
 	
@@ -447,6 +447,13 @@ setInterval(function(){
 							mobs[m].y -= 0.05;//= mobs[m].y - 0.05;
 						else if(mobs[m].nextCheckPointX < mobs[m].x)
 							mobs[m].x -= 0.05; //-= 0.05;						
+					}
+					else
+					{
+					 var index = p;
+					 index++:
+						mobs[m].nextCheckPointY = path[index].y;
+						mobs[m].nextCheckPointX = path[index].x;
 					}
 
 				}
