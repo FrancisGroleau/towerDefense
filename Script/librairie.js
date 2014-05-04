@@ -9,6 +9,7 @@ var canvas,
 	pathIndex = 0;
 	var grid = [];
 	var NumberOfRow, NumberOfCol;
+	var index = 0;
 
 	
 
@@ -430,51 +431,50 @@ setInterval(function(){
 		//move mobs to next cell whose part of the path
 		if(gameStatus){
 		
-			for(var p in path){
-				/*for(var m in mobs){
+		/*	for(var p in path){
+				for(var m in mobs){	
+					/*var index = p;
+					if(index < pathIndex)
+						index++;
+					else
+						index = 0; */
+				/*(for(var m in mobs){	
 					mobs[m].nextCheckPointY = path[p].y;
-					mobs[m].nextCheckPointX = path[p].x;
+					mobs[m].nextCheckPointX = path[p].x;	
 				}*/
 				
-	
+				
 				for(var m in mobs){
 	
 					if(mobs[m].y != mobs[m].nextCheckPointY || mobs[m].x != mobs[m].nextCheckPointX){
-						if(mobs[m].nextCheckPointY > mobs[m].y)
-							mobs[m].y += 0.05;//= 0.05;
-						else if(mobs[m].nextCheckPointX > mobs[m].x)
-							mobs[m].x += 0.05;//= 0.05;
-						else if(mobs[m].nextCheckPointY < mobs[m].y)
-							mobs[m].y -= 0.05;//= mobs[m].y - 0.05;
-						else if(mobs[m].nextCheckPointX < mobs[m].x)
-							mobs[m].x -= 0.05; //-= 0.05;						
+						if(mobs[m].nextCheckPointY > mobs[m].y){
+							mobs[m].y += 0.5;//= 0.05;
+							continue;
+						}
+						if(mobs[m].nextCheckPointX > mobs[m].x){
+							mobs[m].x += 0.5;//= 0.05;
+							continue;
+							//break;
+						}
+						if(mobs[m].nextCheckPointY < mobs[m].y){
+							mobs[m].y -= 0.5;//= mobs[m].y - 0.05;
+							continue;
+						}
+						if(mobs[m].nextCheckPointX < mobs[m].x){
+							mobs[m].x -= 0.5; //-= 0.05;		
+							continue;
+						}							
 					}
-					else
-					{
-							//for(var m in mobs){
-				
-							var index = p;
-							index++;
-							if(index <= pathIndex){
-								mobs[m].nextCheckPointY = path[index].y;
-								mobs[m].nextCheckPointX = path[index].x;
-							}
-							else
-							{
-								p = 0;
-								//if(m == mobsIndex)
-									m = 0;
-							}
-						//}
-					
+					else{
+						index++;
+						if(index < pathIndex){
+							mobs[m].nextCheckPointY = path[index].y;
+							mobs[m].nextCheckPointX = path[index].x;
+						}
+						
 					}
-
-			
-					
 				}
-				
-		
-			}
+			//}
 		}
 		
 		//only draw will game is not on pause
