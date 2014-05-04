@@ -451,7 +451,7 @@ setInterval(function(){
 					else
 					{
 					 var index = p;
-					 index++:
+					 index++;
 						mobs[m].nextCheckPointY = path[index].y;
 						mobs[m].nextCheckPointX = path[index].x;
 					}
