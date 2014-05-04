@@ -445,7 +445,8 @@ setInterval(function(){
 				
 				
 				for(var m in mobs){
-	
+					mobs[m].nextCheckPointY = path[index].y;
+					mobs[m].nextCheckPointX = path[index].x;
 					if(mobs[m].y != mobs[m].nextCheckPointY || mobs[m].x != mobs[m].nextCheckPointX){
 						if(mobs[m].nextCheckPointY > mobs[m].y){
 							mobs[m].y += 0.5;//= 0.05;
@@ -466,10 +467,9 @@ setInterval(function(){
 						}							
 					}
 					else{
-						index++;
+						
 						if(index < pathIndex){
-							mobs[m].nextCheckPointY = path[index].y;
-							mobs[m].nextCheckPointX = path[index].x;
+							index++;
 						}
 						
 					}
