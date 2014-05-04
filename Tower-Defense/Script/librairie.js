@@ -4,7 +4,9 @@ var canvas,
 	mobs = {},
 	mobsIndex = 0,
 	cellWidth = 40,
-	cellHeight = 40;
+	cellHeight = 40,
+	path = {},
+	pathIndex = 0;
 	var grid = [];
 	var NumberOfRow, NumberOfCol;
 
@@ -46,7 +48,7 @@ function initializeCanvas(){
 	} 
 	//create the mobs for first round begin with 50
 	for(var i = 0; i < 50; i++){
-			new mobs(0,0,"losange",100,0,"rgba(73,242,222,0.6)");
+			new mob(0,0,grid[0][0].width,grid[0][0].height,"losange",100,0,"rgba(73,242,222,0.3)");
 	}
 	
 
@@ -119,6 +121,26 @@ function initializeCanvas(){
 	}, false); 
 	
 	createPath();
+	
+	//get all the cell which are part of the path
+	/*for( var ce in cells){
+		if(cells[ce].isPath){
+			path[pathIndex] = cells[ce];
+			pathIndex++;
+		}
+	}*/
+	
+	for(var row = 0; row < NumberOfRow; row++){
+		for(var col = 0; col < NumberOfCol; col++){
+			if(grid[row][col].isPath)
+			{
+				path[pathIndex] = grid[row][col];
+				pathIndex++;
+			}
+			//grid[row][col] = new cell((col * cellWidth),(row * cellHeight),cellWidth,cellHeight, '#B8B8B8', 'rgba(0,0,0,0.2)');
+		}
+	} 
+	
 
 	//draw them cells
 	for( var ce in cells){	
@@ -157,6 +179,7 @@ function createPath(){
 				y = 2;
 			}
 			grid[0][i].isPath = true;
+			
 		}	
 		else
 		{
@@ -351,14 +374,18 @@ function tower(x, y, width, height, color, range, colorRange){
 	
 }
 
-function mobs(x,y,type,life,resistance, color){
+function mob(x, y, width, height, type, life, resistance, color){
 
 	this.x = x;
 	this.y = y;
+	this.width = width;
+	this.height = height;
 	this.type = type;
 	this.life = life;
 	this.resistance = resistance;
 	this.color = color;
+	this.nextCheckPointX = 0;
+	this.nextCheckPointY = 0;
 	
 	
 	mobs[mobsIndex] = this;		
@@ -370,14 +397,14 @@ function mobs(x,y,type,life,resistance, color){
 		//draw the mobs by type;
 		
 		if(this.type == "losange"){
-			c2.fillStyle = this.color;
-			c2.beginPath();
-			c2.moveTo((this.x + 50), this.y);
-			c2.lineTo((this.x + 100), (this.y + 50));
-			c2.lineTo((this.x + 50), (this.y + 100));
-			c2.lineTo(this.x , (this.y + 50));
-			c2.closePath();
-			c2.fill();
+			c.fillStyle = this.color;
+			c.beginPath();
+			c.moveTo((this.x + (this.width / 2)), this.y);
+			c.lineTo((this.x + this.width), (this.y + (this.height / 2)));
+			c.lineTo((this.x + (this.width / 2)), (this.y + this.height));
+			c.lineTo(this.x , (this.y + (this.height / 2)));
+			c.closePath();
+			c.fill();
 		} 
 	
 	}
@@ -385,53 +412,90 @@ function mobs(x,y,type,life,resistance, color){
 }
 
 
-
+//game loop
 setInterval(function(){
-		//draw all cells
-		/*for(var row = 0; row < NumberOfRow; row++){
-			for(var col = 0; col < NumberOfCol; col++){
-				grid[row][col].draw();			
+
+		//add mobs
+		/*if((round * 50) != mobs.lenght)
+		{
+			//reset the array of mobs
+			mobs = {};
+			mobsIndex = 0;
+			//add mobs according to the round we're at
+			for(var i = 0; i < round * 50; i++){
+				new mob(0,0,grid[0][0].width,grid[0][0].height,"losange",100,0,"rgba(73,242,222,0.3)");
 			}
 		} */
 		
-		if((round * 50) != mobs.lenght)
-		{
-			for(var i = 0; i < round * 50; i++){
-				new mobs(0,0,"losange",100,0,"rgba(73,242,222,0.6)");
+		//move mobs to next cell whose part of the path
+		if(gameStatus){
+		
+			for(var p in path){
+				
+				for(var m in mobs){
+					mobs[m].nextCheckPointY = path[p].y;
+					mobs[m].nextCheckPointX = path[p].x;
+				}
+				
+				for(var m in mobs){
+	
+				
+					if(mobs[m].y != mobs[m].nextCheckPointY || mobs[m].x != mobs[m].nextCheckPointX){
+						if(mobs[m].nextCheckPointY > mobs[m].y)
+							mobs[m].y += 0.05;//= 0.05;
+						if(mobs[m].nextCheckPointX > mobs[m].x)
+							mobs[m].x += 0.05;//= 0.05;
+						if(mobs[m].nextCheckPointY < mobs[m].y)
+							mobs[m].y -= 0.05;//= mobs[m].y - 0.05;
+						if(mobs[m].nextCheckPointX < mobs[m].x)
+							mobs[m].x -= 0.05; //-= 0.05;						
+					}
+
+				}
+		
 			}
 		}
 		
 		//only draw will game is not on pause
-		if(gameStatus)
-		{
-			//logic for mobs to follow the path
-			for(var ce in cells){
-				if(ce.isPath){
-					for(m in mobs){
-					//move each one with a delay form the preceiving one.
-					setInterval(function(){
-						m.y = ce.y;
-						m.x = ce.x;
-						},500);
-					}
-				}
-			}
+		//if(gameStatus)
+		//{
+		//logic for mobs to follow the path
+
 		
-			
-			for( var ce in cells){	
-				cells[ce].draw();
-			}
-			
-			for( var ce in cells){	
-				if(ce.tower != null)
-					cells[ce].tower.draw();
-			}
+		//first draw the cell
+		for( var ce in cells){	
+			cells[ce].draw();
 		}
-		//draw all tower
-		/*for(var row = 0; row < NumberOfRow; row++){
+		
+		//then all the mobs
+		for(m in mobs){
+			mobs[m].draw();
+		}
+
+		//then draw all tower
+		for(var row = 0; row < NumberOfRow; row++){
 			for(var col = 0; col < NumberOfCol; col++){
 			if(grid[row][col].tower != null)
 				grid[row][col].tower.draw();			
 			}
-		} */
+		}
+		
+	
+
+
 	},1000 / 60);
+	
+	
+	//move the mobs
+	
+		
+			/*for(var i = 0; i < cells.length; i++){
+				if(cells[i].isPath){
+					for(var j = 0; j < mobs.length; j++){
+						mobs[j].y = cells[i].y
+						mobs[j].x = cells[i].x;
+					
+					}
+				}
+			}*/
+

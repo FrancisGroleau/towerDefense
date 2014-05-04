@@ -14,11 +14,12 @@ var round = 0;
 				activeTower = $(this).attr('id');
 		});
 		
-		$('#startPause').on('click',function(){
+		/*$('#startPause').on('click',function(){
 			
 			gameStatus = !gameStatus;
-		});
-		$('#nextRound').text("start round" + round + 1);
+		});*/
+		
+		$('#nextRound').text("start round " + round++);
 		
 		$('#nextRound').on('click',function(){
 				
@@ -26,7 +27,6 @@ var round = 0;
 			round++;
 			
 			//when we start next round we resume the game if it was paused
-			if(!gameStatus)
 				gameStatus = true;
 		});
 	});
