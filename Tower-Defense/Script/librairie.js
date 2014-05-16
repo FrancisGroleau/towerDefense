@@ -9,6 +9,7 @@ var canvas,
 	pathIndex = 0;
 	var grid = [];
 	var NumberOfRow, NumberOfCol;
+	var index = 0;
 
 	
 
@@ -47,8 +48,8 @@ function initializeCanvas(){
 		}
 	} 
 	//create the mobs for first round begin with 50
-	for(var i = 0; i < 50; i++){
-			new mob(0,0,grid[0][0].width,grid[0][0].height,"losange",100,0,"rgba(73,242,222,0.3)");
+	for(var i = 0; i < 2; i++){
+			new mob(0,0,grid[0][0].width,grid[0][0].height,"losange",100,0,0.1,"rgba(73,242,222,0.3)");
 	}
 	
 
@@ -67,7 +68,14 @@ function initializeCanvas(){
 				if (mousePos.y > selectedCell.y && mousePos.y < selectedCell.y + selectedCell.height && mousePos.x > selectedCell.x && mousePos.x < selectedCell.x + selectedCell.width) {
 				
 						if(activeTower == ""){
-							selectedCell.isPath = true;
+							if(!pathDone){
+							if(numberOfTrackLeft > 0){
+									selectedCell.isPath = true;
+									numberOfTrackLeft--;
+									actualiserPath();
+								}
+								//getPath();
+							}
 						}
 						else{
 							var color = "";
@@ -120,26 +128,7 @@ function initializeCanvas(){
 		}
 	}, false); 
 	
-	createPath();
-	
-	//get all the cell which are part of the path
-	/*for( var ce in cells){
-		if(cells[ce].isPath){
-			path[pathIndex] = cells[ce];
-			pathIndex++;
-		}
-	}*/
-	
-	for(var row = 0; row < NumberOfRow; row++){
-		for(var col = 0; col < NumberOfCol; col++){
-			if(grid[row][col].isPath)
-			{
-				path[pathIndex] = grid[row][col];
-				pathIndex++;
-			}
-			//grid[row][col] = new cell((col * cellWidth),(row * cellHeight),cellWidth,cellHeight, '#B8B8B8', 'rgba(0,0,0,0.2)');
-		}
-	} 
+	//createPath();
 	
 
 	//draw them cells
@@ -149,6 +138,20 @@ function initializeCanvas(){
 	
 	
 
+}
+function getPath(){
+
+	for(var ce in cells)
+	{
+		if(cells[ce].isPath)
+		{
+			path[pathIndex] = cells[ce];	
+			pathIndex++;
+				
+		}
+	} 
+	path[pathIndex - 1].isBase = true;
+	path[pathIndex - 1].isPath = false;
 }
 
 function createPath(){
@@ -167,21 +170,52 @@ function createPath(){
 	var y = 0;
 	 
 	 // random walk without crossing
-	 for(var i = 0; i < 50000; i++){
-		var direction = Math.floor((Math.random()*4));
+	 //for(var i = 0; i < 50; i++){
+	//	var direction = Math.floor((Math.random()*4));
 		
-		//always start the same way
-		if(i < 10){
-			if(i == 9){
-				grid[2][i].isPath = true;
-				grid[1][i].isPath = true;
-				x = i;
-				y = 2;
-			}
-			grid[0][i].isPath = true;
+			/*	grid[0][0].isPath = true;
+				grid[0][1].isPath = true;
+				grid[1][1].isPath = true;
+				grid[1][2].isPath = true;
+				grid[2][2].isPath = true;
+				grid[2][3].isPath = true;
+				grid[2][4].isPath = true;
+				grid[2][5].isPath = true;
+				grid[2][6].isPath = true;
+				grid[3][7].isPath = true;
+				grid[3][8].isPath = true;
+				grid[4][9].isPath = true;				
+				grid[5][10].isPath = true;
+				grid[6][10].isPath = true;
+				grid[6][11].isPath = true;
+				grid[6][12].isPath = true;
+				grid[6][12].isPath = true;
+				grid[6][11].isPath = true;
+				grid[6][10].isPath = true;
+				grid[6][9].isPath = true;
+				grid[6][8].isPath = true;
+				grid[6][7].isPath = true;
+				grid[6][6].isPath = true;
+				grid[7][6].isPath = true;
+				grid[8][6].isPath = true;
+				grid[9][6].isPath = true;
+				grid[9][6].isPath = true;
+				grid[10][7].isPath = true;
+				grid[10][8].isPath = true;
+				grid[10][9].isPath = true;
+				grid[10][10].isPath = true;
+				grid[10][11].isPath = true;
+				grid[10][12].isPath = true;
+				grid[10][13].isPath = true;
+				grid[10][14].isPath = true;
+				grid[10][15].isPath = true;
+				grid[10][16].isPath = true;
+				grid[10][17].isPath = true; */
 			
-		}	
-		else
+		
+			
+		
+		/*else //random path ... does shit abandon this
 		{
 			switch(direction){
 				//left
@@ -244,8 +278,8 @@ function createPath(){
 					}					
 				break;
 			}
-		}
-	 }
+		}*/
+	 //}
 	
 }
 
@@ -295,6 +329,7 @@ function cell(x, y, width, height, borderColor, color, isPath){
 	this.isPath = isPath;
 	this.tower = null;
 	this.isHover = false;
+	this.isBase = false;
 	
 	//manage cells
 
@@ -311,6 +346,10 @@ function cell(x, y, width, height, borderColor, color, isPath){
 		if(this.isPath){	
 			c.fillStyle = "rgba(4,33,48,0.5)";
 			c.fillRect(this.x,this.y,this.width,this.height);	
+		}
+		else if(this.isBase){
+			c.fillStyle = "rgba(250,242,0,0.1)";
+			c.fillRect(this.x,this.y,this.width,this.height);
 		}
 		else{
 			//Draw the normal cell
@@ -374,7 +413,7 @@ function tower(x, y, width, height, color, range, colorRange){
 	
 }
 
-function mob(x, y, width, height, type, life, resistance, color){
+function mob(x, y, width, height, type, life, resistance, speed, color){
 
 	this.x = x;
 	this.y = y;
@@ -386,7 +425,8 @@ function mob(x, y, width, height, type, life, resistance, color){
 	this.color = color;
 	this.nextCheckPointX = 0;
 	this.nextCheckPointY = 0;
-	
+	this.mobPathIndex = 0;
+	this.speed = speed;
 	
 	mobs[mobsIndex] = this;		
 	this.id = mobsIndex;
@@ -430,51 +470,61 @@ setInterval(function(){
 		//move mobs to next cell whose part of the path
 		if(gameStatus){
 		
-			for(var p in path){
-				/*for(var m in mobs){
+		/*	for(var p in path){
+				for(var m in mobs){	
+					/*var index = p;
+					if(index < pathIndex)
+						index++;
+					else
+						index = 0; */
+				/*(for(var m in mobs){	
 					mobs[m].nextCheckPointY = path[p].y;
-					mobs[m].nextCheckPointX = path[p].x;
+					mobs[m].nextCheckPointX = path[p].x;	
 				}*/
 				
-	
+				
 				for(var m in mobs){
-	
-					if(mobs[m].y != mobs[m].nextCheckPointY || mobs[m].x != mobs[m].nextCheckPointX){
-						if(mobs[m].nextCheckPointY > mobs[m].y)
-							mobs[m].y += 0.05;//= 0.05;
-						else if(mobs[m].nextCheckPointX > mobs[m].x)
-							mobs[m].x += 0.05;//= 0.05;
-						else if(mobs[m].nextCheckPointY < mobs[m].y)
-							mobs[m].y -= 0.05;//= mobs[m].y - 0.05;
-						else if(mobs[m].nextCheckPointX < mobs[m].x)
-							mobs[m].x -= 0.05; //-= 0.05;						
-					}
-					else
-					{
-							//for(var m in mobs){
 				
-							var index = p;
-							index++;
-							if(index <= pathIndex){
-								mobs[m].nextCheckPointY = path[index].y;
-								mobs[m].nextCheckPointX = path[index].x;
+						if(mobs[m].y.toFixed(1) != mobs[m].nextCheckPointY.toFixed(1) || mobs[m].x.toFixed(1) != mobs[m].nextCheckPointX.toFixed(1)){
+							if(mobs[m].nextCheckPointY.toFixed(1) > mobs[m].y.toFixed(1)){
+								mobs[m].y += mobs[m].speed;//= 0.05;
+								continue;
+								//break;
 							}
-							else
-							{
-								p = 0;
-								//if(m == mobsIndex)
-									m = 0;
+							if(mobs[m].nextCheckPointX.toFixed(1) > mobs[m].x.toFixed(1)){
+								mobs[m].x += mobs[m].speed;//= 0.05;
+								continue;
+								//break;
 							}
-						//}
-					
-					}
+							if(mobs[m].nextCheckPointY.toFixed(1) < mobs[m].y.toFixed(1)){
+								mobs[m].y -= mobs[m].speed;//= mobs[m].y - 0.05;
+								continue;
+								//break;
+							}
+							if(mobs[m].nextCheckPointX.toFixed(1) < mobs[m].x.toFixed(1)){
+								mobs[m].x -= mobs[m].speed; //-= 0.05;		
+								continue;
+								//break;
+							}							
+						}
+						else{
+							//if(mobs[m].mobPathIndex < pathIndex){
+								//mobs[m].mobPathIndex++
+									mobs[m].mobPathIndex++
 
-			
-					
-				}
+									console.log("mob : x:" + mobs[m].x + " y:" + mobs[m].y + " cy:" + mobs[m].nextCheckPointY + " cx:" + mobs[m].nextCheckPointX );
+								console.log("path : x:" + path[mobs[m].mobPathIndex].x + " y:" + path[mobs[m].mobPathIndex].y);
+								mobs[m].nextCheckPointY = path[mobs[m].mobPathIndex].y;
+								mobs[m].nextCheckPointX = path[mobs[m].mobPathIndex].x;
+							
+								console.log("mob : x:" + mobs[m].x + " y:" + mobs[m].y + " cy:" + mobs[m].nextCheckPointY + " cx:" + mobs[m].nextCheckPointX );
+							//}
+						}
+						
 				
-		
-			}
+				
+					}
+			//}
 		}
 		
 		//only draw will game is not on pause
