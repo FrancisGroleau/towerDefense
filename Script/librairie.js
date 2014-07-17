@@ -44,13 +44,11 @@ function initializeCanvas(){
 	//create the cells
 	for(var row = 0; row < NumberOfRow; row++){
 		for(var col = 0; col < NumberOfCol; col++){
-			grid[row][col] = new cell((col * cellWidth),(row * cellHeight),cellWidth,cellHeight, '#B8B8B8', 'rgba(0,0,0,0.2)');
+			grid[row][col] = new cell((row * cellWidth),(col * cellHeight),cellWidth,cellHeight, '#B8B8B8', 'rgba(0,0,0,0.2)');
 		}
 	} 
 	//create the mobs for first round begin with 50
-	for(var i = 0; i < 2; i++){
-			new mob(0,0,grid[0][0].width,grid[0][0].height,"losange",100,0,0.1,"rgba(73,242,222,0.3)");
-	}
+
 	
 
 	
@@ -70,9 +68,13 @@ function initializeCanvas(){
 						if(activeTower == ""){
 							if(!pathDone){
 							if(numberOfTrackLeft > 0){
-									selectedCell.isPath = true;
-									numberOfTrackLeft--;
-									actualiserPath();
+								if(!selectedCell.isPath){
+										selectedCell.isPath = true;
+										numberOfTrackLeft--;
+											path[pathIndex] = selectedCell;
+											pathIndex++;
+										actualiserNumberOfPath();
+									}
 								}
 								//getPath();
 							}
@@ -106,8 +108,7 @@ function initializeCanvas(){
 			}
 		},false);
 		
-		
-		
+				
 	canvas.addEventListener('mousemove', function(e) {
 		
 		var mousePos = getMousePos(canvas, e);
@@ -115,21 +116,19 @@ function initializeCanvas(){
 		for(var row = 0; row < NumberOfRow; row++){
 			for(var col = 0; col < NumberOfCol; col++){
 				var selectedCell = grid[row][col];
-				if(selectedCell.tower != null)
-				{
-					if (mousePos.y > selectedCell.y && mousePos.y < selectedCell.y + selectedCell.height && mousePos.x > selectedCell.x && mousePos.x < selectedCell.x + selectedCell.width) {
+				if(selectedCell.tower != null){
+					if (mousePos.y > selectedCell.y && mousePos.y < selectedCell.y + selectedCell.height && mousePos.x > selectedCell.x && mousePos.x < selectedCell.x + selectedCell.width) 
 						selectedCell.tower.isHover = true;
-					}
-					else{
+					else
 						selectedCell.tower.isHover = false;
-					}
+					
 				}
 			}
 		}
 	}, false); 
 	
-	//createPath();
-	
+	createPath();
+	//getPath;
 
 	//draw them cells
 	for( var ce in cells){	
@@ -141,33 +140,81 @@ function initializeCanvas(){
 }
 function getPath(){
 
-	for(var ce in cells)
-	{
-		if(cells[ce].isPath)
-		{
-			path[pathIndex] = cells[ce];	
-			pathIndex++;
-				
+	for(var row = 0; row < NumberOfRow; row++){
+		for(var col = 0; col < NumberOfCol; col++){
+			var selectedCell = grid[row][col];
+			if(selectedCell.isPath){
+				path[pathIndex] = selectedCell;	
+				pathIndex++;				
+			}
 		}
-	} 
-	path[pathIndex - 1].isBase = true;
-	path[pathIndex - 1].isPath = false;
+	}
+
+
 }
 
 function createPath(){
  	
-	var indexesOfCellsInLastCol = new Array();
-	for(var o = NumberOfRow; o < (NumberOfRow * NumberOfRow); o+= NumberOfRow)
-		indexesOfCellsInLastCol.push(o);
+	//S shape path
+	
+	for(var i = 0; i < 16; i++){
+		grid[i][0].isPath = true;
+		path[pathIndex] = grid[i][0];
+		pathIndex++;
+	}
+	
+	for(var i = 0; i < 5; i++){
+		grid[15][i].isPath = true;
+		path[pathIndex] = grid[15][i];
+		pathIndex++;
+	}
+	
+	for(var i = 15; i > 0; i--){
+		grid[i][4].isPath = true;
+		path[pathIndex] = grid[i][4];
+		pathIndex++;
+	}
+	
+	for(var i = 5; i < 9; i++){
+		grid[1][i].isPath = true;
+		path[pathIndex] = grid[1][i];
+		pathIndex++;
+	}
 
-	var indexesOfCellsInFirstCol = new Array();
-	for(var k = 1; k < (NumberOfRow * NumberOfRow); k+= NumberOfRow)
-		indexesOfCellsInFirstCol.push(k);
+	
+	for( var i = 1; i < 16; i++){
+		grid[i][8].isPath = true;
+		path[pathIndex] = grid[i][8];
+		pathIndex++;
+	}
+
+	for(var i = 9; i < 13; i++){
+		grid[15][i].isPath = true;
+		path[pathIndex] = grid[15][i];
+		pathIndex++;
+	}
+	
+	
+	for(var i = 15; i > 2; i--){
+		grid[i][12].isPath = true;
+		path[pathIndex] = grid[i][12];
+		pathIndex++;
+	}
 		
-	var usedDirection = [];
+	path[pathIndex - 1].isBase = true;
+	path[pathIndex - 1].isPath = false;
+	// var indexesOfCellsInLastCol = new Array();
+	// for(var o = NumberOfRow; o < (NumberOfRow * NumberOfRow); o+= NumberOfRow)
+		// indexesOfCellsInLastCol.push(o);
+
+	// var indexesOfCellsInFirstCol = new Array();
+	// for(var k = 1; k < (NumberOfRow * NumberOfRow); k+= NumberOfRow)
+		// indexesOfCellsInFirstCol.push(k);
 		
-	var x = 0;
-	var y = 0;
+	// var usedDirection = [];
+		
+	// var x = 0;
+	// var y = 0;
 	 
 	 // random walk without crossing
 	 //for(var i = 0; i < 50; i++){
@@ -330,6 +377,7 @@ function cell(x, y, width, height, borderColor, color, isPath){
 	this.tower = null;
 	this.isHover = false;
 	this.isBase = false;
+	this.leftArrow = false;
 	
 	//manage cells
 
@@ -350,6 +398,27 @@ function cell(x, y, width, height, borderColor, color, isPath){
 		else if(this.isBase){
 			c.fillStyle = "rgba(250,242,0,0.1)";
 			c.fillRect(this.x,this.y,this.width,this.height);
+		}
+		else if(this.leftArrow){
+			c.fillStyle = "rgba(0,140,12,0.5)";
+			// c.beginPath();
+				// c.lineTo(this.x,(this.y + this.height) / 2);
+				// c.lineTo((this.x + this.width) / 3, ((this.y + this.height) / 2) / 2);
+				// c.lineTo((this.x + this.width) / 3, (this.y + this.height) / 3);
+				// c.lineTo((this.x + this.width), (this.y + this.height) / 3);
+				// c.lineTo((this.x + this.width), (this.y + this.height) - ((this.y + this.height) / 3));
+				// c.lineTo((this.x + this.width) / 3,(this.y + this.height) - ((this.y + this.height) / 3))
+				// c.lineTo((this.x + this.width) / 3,((this.y + this.height) / 2) - (((this.y + this.height) / 2) / 2));
+			// c.closePath();
+			// c.fill();
+			
+		    c.beginPath();
+			c.moveTo(this.x + 10 , (this.y + (this.height / 2)));
+			c.lineTo((this.x + this.width) - 10, this.y + 10);
+			c.lineTo((this.x + this.width) - 10, (this.y + this.height) - 10);
+			c.closePath();
+			c.fill();
+			
 		}
 		else{
 			//Draw the normal cell
@@ -470,45 +539,32 @@ setInterval(function(){
 		//move mobs to next cell whose part of the path
 		if(gameStatus){
 		
-		/*	for(var p in path){
-				for(var m in mobs){	
-					/*var index = p;
-					if(index < pathIndex)
-						index++;
-					else
-						index = 0; */
-				/*(for(var m in mobs){	
-					mobs[m].nextCheckPointY = path[p].y;
-					mobs[m].nextCheckPointX = path[p].x;	
-				}*/
-				
-				
 				for(var m in mobs){
-				
-						if(mobs[m].y.toFixed(1) != mobs[m].nextCheckPointY.toFixed(1) || mobs[m].x.toFixed(1) != mobs[m].nextCheckPointX.toFixed(1)){
-							if(mobs[m].nextCheckPointY.toFixed(1) > mobs[m].y.toFixed(1)){
+						
+						if(mobs[m].y != mobs[m].nextCheckPointY || mobs[m].x != mobs[m].nextCheckPointX){
+							if(mobs[m].nextCheckPointY > mobs[m].y){
 								mobs[m].y += mobs[m].speed;//= 0.05;
 								continue;
 								//break;
 							}
-							if(mobs[m].nextCheckPointX.toFixed(1) > mobs[m].x.toFixed(1)){
+							if(mobs[m].nextCheckPointX > mobs[m].x){
 								mobs[m].x += mobs[m].speed;//= 0.05;
 								continue;
 								//break;
 							}
-							if(mobs[m].nextCheckPointY.toFixed(1) < mobs[m].y.toFixed(1)){
+							if(mobs[m].nextCheckPointY < mobs[m].y){
 								mobs[m].y -= mobs[m].speed;//= mobs[m].y - 0.05;
 								continue;
 								//break;
 							}
-							if(mobs[m].nextCheckPointX.toFixed(1) < mobs[m].x.toFixed(1)){
+							if(mobs[m].nextCheckPointX < mobs[m].x){
 								mobs[m].x -= mobs[m].speed; //-= 0.05;		
 								continue;
 								//break;
 							}							
 						}
 						else{
-							//if(mobs[m].mobPathIndex < pathIndex){
+							if(mobs[m].mobPathIndex < pathIndex){
 								//mobs[m].mobPathIndex++
 									mobs[m].mobPathIndex++
 
@@ -518,7 +574,9 @@ setInterval(function(){
 								mobs[m].nextCheckPointX = path[mobs[m].mobPathIndex].x;
 							
 								console.log("mob : x:" + mobs[m].x + " y:" + mobs[m].y + " cy:" + mobs[m].nextCheckPointY + " cx:" + mobs[m].nextCheckPointX );
-							//}
+							}/*else{
+								delete mobs[m];
+							}*/
 						}
 						
 				
@@ -539,7 +597,7 @@ setInterval(function(){
 		}
 		
 		//then all the mobs
-		for(m in mobs){
+		for(var m in mobs){
 			mobs[m].draw();
 		}
 
@@ -557,16 +615,13 @@ setInterval(function(){
 	},1000 / 60);
 	
 	
-	//move the mobs
+		var mobCounter = 0;
+		if(mobCounter < 50){
+				setInterval(function(){
+					new mob(0,0,40,40,"losange",100,0,10,"rgba(73,242,222,0.3)");
+					mobCounter++;
+				},500);
+		}
 	
-		
-			/*for(var i = 0; i < cells.length; i++){
-				if(cells[i].isPath){
-					for(var j = 0; j < mobs.length; j++){
-						mobs[j].y = cells[i].y
-						mobs[j].x = cells[i].x;
-					
-					}
-				}
-			}*/
+
 

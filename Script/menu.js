@@ -1,8 +1,8 @@
 var activeTower = "";
-var gameStatus = false;
 var round = 0;
-var numberOfTrackLeft = 20;
+var numberOfTrackLeft = 50;
 var pathDone = false;
+var gameStatus = false;
 
 	$(document).ready(function(){
 		$('.towerIcon').on('click',function(){
@@ -31,8 +31,9 @@ var pathDone = false;
 			
 			//when we start next round we resume the game if it was paused
 				gameStatus = true;
+				mobCounter++;
 			//get the path that has been created
-			getPath();
+			//getPath();
 		});
 		
 		
@@ -42,7 +43,7 @@ var pathDone = false;
 		});
 	});
 	
-	function actualiserPath(){
+	function actualiserNumberOfPath(){
 	
 		$('#numberOfPath').text("Number of track left " + numberOfTrackLeft);
 	}
