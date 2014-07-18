@@ -44,7 +44,7 @@ var gameStatus = false;
 		});
 	});
 	
-	function actualiserNumberOfPath(){
 	
-		$('#numberOfPath').text("Number of track left " + numberOfTrackLeft);
+	function refreshNumberOfLifeLeft(){
+			$('#life').text("life left :" + life);
 	}

@@ -6,7 +6,9 @@ var canvas,
 	cellWidth = 40,
 	cellHeight = 40,
 	path = {},
-	pathIndex = 0;
+	pathIndex = 0,
+	rockets = {},
+	rocketIndex = 0;
 	var grid = [];
 	var NumberOfRow, NumberOfCol;
 	var index = 0;
@@ -99,7 +101,7 @@ function initializeCanvas(){
 									range = 80;
 								}
 							
-							t = new tower(selectedCell.x, selectedCell.y,selectedCell.width, selectedCell.height, color, range, colorRange);
+							t = new tower(selectedCell.x, selectedCell.y,selectedCell.width, selectedCell.height, color, range, colorRange, activeTower);
 							selectedCell.tower = t;
 							//selectedCell.isHover = true;
 						//}
@@ -454,7 +456,7 @@ function getMousePos(canvas, evt) {
     };
 }
 
-function tower(x, y, width, height, color, range, colorRange){
+function tower(x, y, width, height, color, range, colorRange, type){
 
 	this.x = x;
 	this.y = y;
@@ -463,6 +465,7 @@ function tower(x, y, width, height, color, range, colorRange){
 	this.color = color;
 	this.colorRange = colorRange;
 	this.range = range;
+	this.type = type;
 	this.isHover = false;
 	
 	this.draw = function(){
@@ -519,12 +522,52 @@ function mob(x, y, width, height, type, life, resistance, speed, color){
 
 }
 
+function rocket(x, y, width, height, type, target){
+
+	this.x = x;
+	this.y = y;
+	this.originX = x;
+	this.originY = y;
+	this.vx = 0;
+	this.vy = 0;
+	this.width = width;
+	this.height = height;
+	this.type = type;
+	this.life = life;
+	this.target = target;
+	this.targetLocked = false;
+
+	rockets[rocketIndex] = this;
+	this.id = rocketIndex;
+	rocketIndex++;
+	
+	this.draw = function(){
+	
+		//draw the mobs by type;
+		
+		//wonder around until target is locked
+		if(!this.targetLocked)
+		{
+			this.x += this.vx;
+			this.y += this.vy;	
+		}
+		
+		if(this.type == "red"){
+			c.fillStyle = "rgba(231,76,60,0.5)";
+			c.fillRect(this.x,this.y,this.width,this.height);
+		} 
+	
+	}
+
+
+}
+
 function createNewMobs(){
 
 	if(gameStatus)
 	{
 		if(mobCounter < 50){
-			new mob(0,0,40,40,"losange",10,0,0.2,"rgba(73,242,222,0.3)");
+			new mob(0,0,40,40,"losange",10,0,0.50,"rgba(73,242,222,0.3)");
 			mobCounter++;		
 		}
 	}
@@ -533,74 +576,120 @@ function createNewMobs(){
 //game loop
 setInterval(function(){
 
-		//add mobs
-		/*if((round * 50) != mobs.lenght)
-		{
-			//reset the array of mobs
-			mobs = {};
-			mobsIndex = 0;
-			//add mobs according to the round we're at
-			for(var i = 0; i < round * 50; i++){
-				new mob(0,0,grid[0][0].width,grid[0][0].height,"losange",100,0,"rgba(73,242,222,0.3)");
-			}
-		} */
-		
-		//move mobs to next cell whose part of the path
-		if(gameStatus){
-		
-				for(var m in mobs){
-						
-						if(mobs[m].y != mobs[m].nextCheckPointY || mobs[m].x != mobs[m].nextCheckPointX){
-							if(mobs[m].nextCheckPointY > mobs[m].y){
-								mobs[m].y += mobs[m].speed;//= 0.05;
-								continue;
-								//break;
-							}
-							if(mobs[m].nextCheckPointX > mobs[m].x){
-								mobs[m].x += mobs[m].speed;//= 0.05;
-								continue;
-								//break;
-							}
-							if(mobs[m].nextCheckPointY < mobs[m].y){
-								mobs[m].y -= mobs[m].speed;//= mobs[m].y - 0.05;
-								continue;
-								//break;
-							}
-							if(mobs[m].nextCheckPointX < mobs[m].x){
-								mobs[m].x -= mobs[m].speed; //-= 0.05;		
-								continue;
-								//break;
-							}							
-						}
-						else{
-							if(mobs[m].mobPathIndex < pathIndex){
-								//mobs[m].mobPathIndex++
-									mobs[m].mobPathIndex++
 
-									console.log("mob : x:" + mobs[m].x + " y:" + mobs[m].y + " cy:" + mobs[m].nextCheckPointY + " cx:" + mobs[m].nextCheckPointX );
-								console.log("path : x:" + path[mobs[m].mobPathIndex].x + " y:" + path[mobs[m].mobPathIndex].y);
-								mobs[m].nextCheckPointY = path[mobs[m].mobPathIndex].y;
-								mobs[m].nextCheckPointX = path[mobs[m].mobPathIndex].x;
-							
-								console.log("mob : x:" + mobs[m].x + " y:" + mobs[m].y + " cy:" + mobs[m].nextCheckPointY + " cx:" + mobs[m].nextCheckPointX );
-							}else{
-								life--;
-							}/*else{
-								delete mobs[m];
-							}*/
-						}
-						
-				
-				
-					}
-			//}
-		}
 		
 		//only draw will game is not on pause
-		//if(gameStatus)
-		//{
-		//logic for mobs to follow the path
+		if(gameStatus){
+			//move mobs to next cell whose part of the path
+			for(var m in mobs){
+						
+				if(mobs[m].y != mobs[m].nextCheckPointY || mobs[m].x != mobs[m].nextCheckPointX){
+					if(mobs[m].nextCheckPointY > mobs[m].y){
+						mobs[m].y += mobs[m].speed;//= 0.05;
+						continue;
+						//break;
+					}
+					if(mobs[m].nextCheckPointX > mobs[m].x){
+						mobs[m].x += mobs[m].speed;//= 0.05;
+						continue;
+						//break;
+					}
+					if(mobs[m].nextCheckPointY < mobs[m].y){
+						mobs[m].y -= mobs[m].speed;//= mobs[m].y - 0.05;
+						continue;
+						//break;
+					}
+					if(mobs[m].nextCheckPointX < mobs[m].x){
+						mobs[m].x -= mobs[m].speed; //-= 0.05;		
+						continue;
+						//break;
+					}							
+				}
+				else{
+					if(mobs[m].mobPathIndex < pathIndex){
+						//mobs[m].mobPathIndex++
+							mobs[m].mobPathIndex++
 
+						//console.log("mob : x:" + mobs[m].x + " y:" + mobs[m].y + " cy:" + mobs[m].nextCheckPointY + " cx:" + mobs[m].nextCheckPointX );
+						//console.log("path : x:" + path[mobs[m].mobPathIndex].x + " y:" + path[mobs[m].mobPathIndex].y);
+						mobs[m].nextCheckPointY = path[mobs[m].mobPathIndex].y;
+						mobs[m].nextCheckPointX = path[mobs[m].mobPathIndex].x;
+					
+						//console.log("mob : x:" + mobs[m].x + " y:" + mobs[m].y + " cy:" + mobs[m].nextCheckPointY + " cx:" + mobs[m].nextCheckPointX );
+					}else{
+						if(life > 0){
+							life--;
+							refreshNumberOfLifeLeft();
+						}else{
+							gameStatus = false;
+						}
+						delete mobs[m];
+					}
+				}
+			}
+			
+			//detect if mobs are in rage to be shot by tower
+			for(var ce in cells){
+				for(var m in mobs){
+					if(cells[ce].tower != null){
+						if(cells[ce].tower.type == "red"){
+							if((((cells[ce].x - (cells[ce].width / 2)) + cells[ce].tower.range) >= mobs[m].x) && (((cells[ce].y - (cells[ce].height / 2)) + cells[ce].tower.range) >= mobs[m].y) && 
+							   (((cells[ce].x - (cells[ce].width / 2)) - cells[ce].tower.range) <= mobs[m].x) && (((cells[ce].y - (cells[ce].height / 2)) - cells[ce].tower.range) <= mobs[m].y)){
+									var vy = Math.floor((Math.random() * 5) + 1);
+									var vx = Math.floor((Math.random() * 5) + 1);
+									
+									var r = new rocket((cells[ce].x - (cells[ce].width / 2)),(cells[ce].y - (cells[ce].height / 2)),5,5,"red",mobs[m]);
+									r.vx = vx;
+									r.vy = vy;
+							}
+						}
+					}  
+					
+					for(var ro in rockets){
+						if(rockets[ro].x > rockets[ro].originX + 100 || rockets[ro].y > rockets[ro].originY + 100){
+							rockets[ro].targetLocked = true;
+								
+							if(rockets[ro].target.x != rockets[ro].x || rockets[ro].target.y != rockets[ro].y){
+								if(rockets[ro].target.x > rockets[ro].x){
+									rockets[ro].x++;
+									continue;
+								}if(rockets[ro].target.x < rockets[ro].x){
+									rockets[ro].x--;
+									continue;
+								}
+								if(rockets[ro].target.y > rockets[ro].y){
+									rockets[ro].y++;
+									continue;
+								}if(rockets[ro].target.y < rockets[ro].y){
+									rockets[ro].y--;
+									continue;
+								}
+								
+							}else{
+								for(var m2 in mobs){
+									if(mobs[m2].id == rockets[ro].target.id){
+										if(mobs[m].life > 0){
+											mobs[m].life--;
+										}else{
+											delete mobs[m];
+										}
+										break;
+									}
+								}
+								delete rockets[ro];
+							}
+								
+						}
+					}
+				}
+			}
+		}
+			
+			
+			
+		
+		
+		
 		
 		//first draw the cell
 		for( var ce in cells){	
@@ -612,6 +701,11 @@ setInterval(function(){
 			mobs[m].draw();
 		}
 
+		//then all the rocket
+		for( var ro in rockets){
+			rockets[ro].draw();
+		}
+		
 		//then draw all tower
 		for(var row = 0; row < NumberOfRow; row++){
 			for(var col = 0; col < NumberOfCol; col++){
