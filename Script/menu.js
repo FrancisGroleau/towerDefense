@@ -22,7 +22,7 @@ var gameStatus = false;
 		});*/
 		
 		$('#nextRound').text("start round " + round++);
-		$('#numberOfPath').text("Number of track left " + numberOfTrackLeft);
+		$('#life').text("life left :" + life);
 		
 		$('#nextRound').on('click',function(){
 				
@@ -35,6 +35,7 @@ var gameStatus = false;
 			//get the path that has been created
 			//getPath();
 		});
+		
 		
 		
 		$('#path').on('click',function(){

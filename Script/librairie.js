@@ -10,8 +10,8 @@ var canvas,
 	var grid = [];
 	var NumberOfRow, NumberOfCol;
 	var index = 0;
-
-	
+	var life = 10;
+	var mobCounter = 0;
 
 window.onload = function(){
 
@@ -65,21 +65,21 @@ function initializeCanvas(){
 				var selectedCell = grid[row][col];
 				if (mousePos.y > selectedCell.y && mousePos.y < selectedCell.y + selectedCell.height && mousePos.x > selectedCell.x && mousePos.x < selectedCell.x + selectedCell.width) {
 				
-						if(activeTower == ""){
-							if(!pathDone){
-							if(numberOfTrackLeft > 0){
-								if(!selectedCell.isPath){
-										selectedCell.isPath = true;
-										numberOfTrackLeft--;
-											path[pathIndex] = selectedCell;
-											pathIndex++;
-										actualiserNumberOfPath();
-									}
-								}
-								//getPath();
-							}
-						}
-						else{
+						// if(activeTower == ""){
+							// if(!pathDone){
+							// if(numberOfTrackLeft > 0){
+								// // if(!selectedCell.isPath){
+										// // selectedCell.isPath = true;
+										// // numberOfTrackLeft--;
+											// // path[pathIndex] = selectedCell;
+											// // pathIndex++;
+										// // actualiserNumberOfPath();
+									// // }
+								// }
+								// //getPath();
+							// }
+						// }
+						// else{
 							var color = "";
 							var range = "";
 							var colorRange = "";
@@ -102,7 +102,7 @@ function initializeCanvas(){
 							t = new tower(selectedCell.x, selectedCell.y,selectedCell.width, selectedCell.height, color, range, colorRange);
 							selectedCell.tower = t;
 							//selectedCell.isHover = true;
-						}
+						//}
 					}
 				}
 			}
@@ -327,7 +327,6 @@ function createPath(){
 			}
 		}*/
 	 //}
-	
 }
 
 function collideDirection(y, x){
@@ -520,6 +519,16 @@ function mob(x, y, width, height, type, life, resistance, speed, color){
 
 }
 
+function createNewMobs(){
+
+	if(gameStatus)
+	{
+		if(mobCounter < 50){
+			new mob(0,0,40,40,"losange",10,0,0.2,"rgba(73,242,222,0.3)");
+			mobCounter++;		
+		}
+	}
+}
 
 //game loop
 setInterval(function(){
@@ -574,6 +583,8 @@ setInterval(function(){
 								mobs[m].nextCheckPointX = path[mobs[m].mobPathIndex].x;
 							
 								console.log("mob : x:" + mobs[m].x + " y:" + mobs[m].y + " cy:" + mobs[m].nextCheckPointY + " cx:" + mobs[m].nextCheckPointX );
+							}else{
+								life--;
 							}/*else{
 								delete mobs[m];
 							}*/
@@ -610,18 +621,13 @@ setInterval(function(){
 		}
 		
 	
-
+	
 
 	},1000 / 60);
 	
-	
-		var mobCounter = 0;
-		if(mobCounter < 50){
-				setInterval(function(){
-					new mob(0,0,40,40,"losange",100,0,10,"rgba(73,242,222,0.3)");
-					mobCounter++;
-				},500);
-		}
+setInterval(createNewMobs,5000);
+		
+
 	
 
 
