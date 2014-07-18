@@ -573,6 +573,32 @@ function createNewMobs(){
 	}
 }
 
+function shootRockets(){
+
+		for(var ce in cells){
+			for(var m in mobs){
+				if(cells[ce].tower != null){
+					if(cells[ce].tower.type == "red"){
+						if((((cells[ce].x - (cells[ce].width / 2)) + cells[ce].tower.range) >= mobs[m].x) && (((cells[ce].y - (cells[ce].height / 2)) + cells[ce].tower.range) >= mobs[m].y) && 
+						   (((cells[ce].x - (cells[ce].width / 2)) - cells[ce].tower.range) <= mobs[m].x) && (((cells[ce].y - (cells[ce].height / 2)) - cells[ce].tower.range) <= mobs[m].y)){
+								var vy = Math.floor((Math.random() * 4) + 1) -2;
+								var vx = Math.floor((Math.random() * 4) + 1) -2;
+								
+								//if(rocketIndex < 20){
+								
+								
+										var r = new rocket((cells[ce].x - (cells[ce].width / 2)),(cells[ce].y - (cells[ce].height / 2)),5,5,"red",mobs[m]);
+										r.vx = vx;
+										r.vy = vy;
+							
+								//}
+						}
+					}
+				}
+			}
+		}
+
+}
 //game loop
 setInterval(function(){
 
@@ -629,60 +655,51 @@ setInterval(function(){
 			}
 			
 			//detect if mobs are in rage to be shot by tower
-			for(var ce in cells){
-				for(var m in mobs){
-					if(cells[ce].tower != null){
-						if(cells[ce].tower.type == "red"){
-							if((((cells[ce].x - (cells[ce].width / 2)) + cells[ce].tower.range) >= mobs[m].x) && (((cells[ce].y - (cells[ce].height / 2)) + cells[ce].tower.range) >= mobs[m].y) && 
-							   (((cells[ce].x - (cells[ce].width / 2)) - cells[ce].tower.range) <= mobs[m].x) && (((cells[ce].y - (cells[ce].height / 2)) - cells[ce].tower.range) <= mobs[m].y)){
-									var vy = Math.floor((Math.random() * 5) + 1);
-									var vx = Math.floor((Math.random() * 5) + 1);
+				if(rocketIndex > 0){
 									
-									var r = new rocket((cells[ce].x - (cells[ce].width / 2)),(cells[ce].y - (cells[ce].height / 2)),5,5,"red",mobs[m]);
-									r.vx = vx;
-									r.vy = vy;
-							}
-						}
-					}  
-					
 					for(var ro in rockets){
+					
 						if(rockets[ro].x > rockets[ro].originX + 100 || rockets[ro].y > rockets[ro].originY + 100){
 							rockets[ro].targetLocked = true;
-								
+						}
+					
+						if(rockets[ro].targetLocked){
 							if(rockets[ro].target.x != rockets[ro].x || rockets[ro].target.y != rockets[ro].y){
 								if(rockets[ro].target.x > rockets[ro].x){
-									rockets[ro].x++;
-									continue;
-								}if(rockets[ro].target.x < rockets[ro].x){
-									rockets[ro].x--;
-									continue;
+									rockets[ro].x += 0.50;
+									//continue;
+								}
+								if(rockets[ro].target.x < rockets[ro].x){
+									rockets[ro].x -= 0.50;
+									//continue;
 								}
 								if(rockets[ro].target.y > rockets[ro].y){
-									rockets[ro].y++;
-									continue;
-								}if(rockets[ro].target.y < rockets[ro].y){
-									rockets[ro].y--;
-									continue;
+									rockets[ro].y += 0.50;
+									//continue;
+								}
+								if(rockets[ro].target.y < rockets[ro].y){
+									rockets[ro].y -= 0.50;
+									//continue;
 								}
 								
 							}else{
 								for(var m2 in mobs){
 									if(mobs[m2].id == rockets[ro].target.id){
-										if(mobs[m].life > 0){
-											mobs[m].life--;
+										if(mobs[m2].life > 0){
+											mobs[m2].life--;
 										}else{
-											delete mobs[m];
+											delete mobs[m2];
 										}
-										break;
+										delete rockets[ro];
 									}
 								}
-								delete rockets[ro];
+								
 							}
 								
 						}
 					}
 				}
-			}
+		
 		}
 			
 			
@@ -721,7 +738,7 @@ setInterval(function(){
 	
 setInterval(createNewMobs,5000);
 		
-
+setInterval(shootRockets,2000);
 	
 
 
