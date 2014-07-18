@@ -14,6 +14,7 @@ var canvas,
 	var index = 0;
 	var life = 10;
 	var mobCounter = 0;
+	var firstMob = true;
 
 window.onload = function(){
 
@@ -553,7 +554,7 @@ function rocket(x, y, width, height, type, target){
 		}
 		
 		if(this.type == "red"){
-			c.fillStyle = "rgba(231,76,60,0.5)";
+			c.fillStyle = "rgba(231,76,60,0.9)";
 			c.fillRect(this.x,this.y,this.width,this.height);
 		} 
 	
@@ -567,7 +568,7 @@ function createNewMobs(){
 	if(gameStatus)
 	{
 		if(mobCounter < 50){
-			new mob(0,0,40,40,"losange",10,0,0.50,"rgba(73,242,222,0.3)");
+			new mob(0,0,40,40,"losange",10,0,0.50,"rgba(73,242,222,0.9)");
 			mobCounter++;		
 		}
 	}
@@ -579,17 +580,18 @@ function shootRockets(){
 			for(var m in mobs){
 				if(cells[ce].tower != null){
 					if(cells[ce].tower.type == "red"){
-						if((((cells[ce].x - (cells[ce].width / 2)) + cells[ce].tower.range) >= mobs[m].x) && (((cells[ce].y - (cells[ce].height / 2)) + cells[ce].tower.range) >= mobs[m].y) && 
-						   (((cells[ce].x - (cells[ce].width / 2)) - cells[ce].tower.range) <= mobs[m].x) && (((cells[ce].y - (cells[ce].height / 2)) - cells[ce].tower.range) <= mobs[m].y)){
-								var vy = Math.floor((Math.random() * 4) + 1) -2;
-								var vx = Math.floor((Math.random() * 4) + 1) -2;
+						if((((cells[ce].x + (cells[ce].width / 2)) + cells[ce].tower.range) >= mobs[m].x) && (((cells[ce].y + (cells[ce].height / 2)) + cells[ce].tower.range) >= mobs[m].y) && 
+						   (((cells[ce].x + (cells[ce].width / 2)) - cells[ce].tower.range) <= mobs[m].x) && (((cells[ce].y + (cells[ce].height / 2)) - cells[ce].tower.range) <= mobs[m].y)){
+								var vy = Math.floor((Math.random() * 6) + 1) -3;
+								var vx = Math.floor((Math.random() * 6) + 1) -3;
 								
 								//if(rocketIndex < 20){
 								
 								
-										var r = new rocket((cells[ce].x - (cells[ce].width / 2)),(cells[ce].y - (cells[ce].height / 2)),5,5,"red",mobs[m]);
+										var r = new rocket((cells[ce].x + (cells[ce].width / 2)),(cells[ce].y + (cells[ce].height / 2)),12,12,"red",mobs[m]);
 										r.vx = vx;
 										r.vy = vy;
+										return;
 							
 								//}
 						}
@@ -606,6 +608,11 @@ setInterval(function(){
 		
 		//only draw will game is not on pause
 		if(gameStatus){
+			if(firstMob){
+				new mob(0,0,40,40,"losange",10,0,0.50,"rgba(73,242,222,0.9)");
+				mobCounter++;	
+				firstMob = false;
+			}
 			//move mobs to next cell whose part of the path
 			for(var m in mobs){
 						
@@ -644,7 +651,7 @@ setInterval(function(){
 						//console.log("mob : x:" + mobs[m].x + " y:" + mobs[m].y + " cy:" + mobs[m].nextCheckPointY + " cx:" + mobs[m].nextCheckPointX );
 					}else{
 						if(life > 0){
-							life--;
+							life-=2;
 							refreshNumberOfLifeLeft();
 						}else{
 							gameStatus = false;
@@ -666,34 +673,39 @@ setInterval(function(){
 						if(rockets[ro].targetLocked){
 							if(rockets[ro].target.x != rockets[ro].x || rockets[ro].target.y != rockets[ro].y){
 								if(rockets[ro].target.x > rockets[ro].x){
-									rockets[ro].x += 0.50;
+									rockets[ro].x += 2;
 									//continue;
 								}
 								if(rockets[ro].target.x < rockets[ro].x){
-									rockets[ro].x -= 0.50;
+									rockets[ro].x -= 2;
 									//continue;
 								}
 								if(rockets[ro].target.y > rockets[ro].y){
-									rockets[ro].y += 0.50;
+									rockets[ro].y += 2;
 									//continue;
 								}
 								if(rockets[ro].target.y < rockets[ro].y){
-									rockets[ro].y -= 0.50;
+									rockets[ro].y -= 2;
 									//continue;
 								}
 								
 							}else{
-								for(var m2 in mobs){
-									if(mobs[m2].id == rockets[ro].target.id){
-										if(mobs[m2].life > 0){
-											mobs[m2].life--;
-										}else{
-											delete mobs[m2];
+									var mobToDelete = "";
+									for(var m2 in mobs){
+										for(var r in rockets){
+											if(mobs[m2].id == rockets[r].target.id){
+												if(mobs[m2].life > 0){
+													mobs[m2].life--;
+													delete rockets[ro];
+												}else{
+													mobToDelete = mobs[m2];
+												}
+											}
 										}
-										delete rockets[ro];
+										if(mobToDelete != "" && mobs[m2].id == mobToDelete.id){
+											delete mobs[m2];
+										}	
 									}
-								}
-								
 							}
 								
 						}
@@ -718,10 +730,7 @@ setInterval(function(){
 			mobs[m].draw();
 		}
 
-		//then all the rocket
-		for( var ro in rockets){
-			rockets[ro].draw();
-		}
+	
 		
 		//then draw all tower
 		for(var row = 0; row < NumberOfRow; row++){
@@ -731,14 +740,17 @@ setInterval(function(){
 			}
 		}
 		
-	
+			//then all the rocket
+		for( var ro in rockets){
+			rockets[ro].draw();
+		}
 	
 
 	},1000 / 60);
 	
 setInterval(createNewMobs,5000);
 		
-setInterval(shootRockets,2000);
+setInterval(shootRockets,3000);
 	
 
 
