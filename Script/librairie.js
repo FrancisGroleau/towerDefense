@@ -896,7 +896,7 @@ setInterval(function(){
 
 	},1000 / 60);
 	
-setInterval(createNewMobs,(100000 - (Math.pow(round,2) * 500)));
+setInterval(createNewMobs,(100000 - (round * 1000)));
 		
 setInterval(shootRedRockets,5000);
 	
