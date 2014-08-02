@@ -634,8 +634,8 @@ function shootRockets(){
 					if(cells[ce].tower.type == "red"){
 						if((((cells[ce].x + (cells[ce].width / 2)) + cells[ce].tower.range) >= mobs[m].x) && (((cells[ce].y + (cells[ce].height / 2)) + cells[ce].tower.range) >= mobs[m].y) && 
 						   (((cells[ce].x + (cells[ce].width / 2)) - cells[ce].tower.range) <= mobs[m].x) && (((cells[ce].y + (cells[ce].height / 2)) - cells[ce].tower.range) <= mobs[m].y)){
-								var vy = Math.floor((Math.random() * 4) + 1) -2;
-								var vx = Math.floor((Math.random() * 4) + 1) -2;
+								var vy = Math.floor((Math.random() * 8) + 1) -4;
+								var vx = Math.floor((Math.random() * 8) + 1) -4;
 								
 								//if(rocketIndex < 20){
 								
@@ -643,7 +643,8 @@ function shootRockets(){
 										var r = new rocket((cells[ce].x + (cells[ce].width / 2)),(cells[ce].y + (cells[ce].height / 2)),12,12,"red",2,mobs[m]);
 										r.vx = vx;
 										r.vy = vy;
-										return;
+										break;
+										//return;
 							
 								//}
 						}
