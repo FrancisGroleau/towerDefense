@@ -1,8 +1,4 @@
-var activeTower = "";
-var round = 0;
-var numberOfTrackLeft = 50;
-var pathDone = false;
-var gameStatus = false;
+
 
 	$(document).ready(function(){
 		$('.towerIcon').on('click',function(){
@@ -16,35 +12,47 @@ var gameStatus = false;
 				activeTower = $(this).attr('id');
 		});
 		
-		/*$('#startPause').on('click',function(){
+		$('#nextRound').text("start round 1");
+		$('#life').text("life left :" + life);
+		$('#mobLeft').text("Enemies left : 4");
+		
+		
+		$('#startPause').on('click',function(){
 			
 			gameStatus = !gameStatus;
-		});*/
+		});
 		
-		$('#nextRound').text("start round " + round++);
-		$('#life').text("life left :" + life);
+	
+	
 		
 		$('#nextRound').on('click',function(){
 				
-			
-			round++;
+			$('#nextRound').text("start round " + round++);
+	
+			mobLeft = Math.pow(round,2);
+			refreshNumberOfMobLeft();
 			
 			//when we start next round we resume the game if it was paused
-				gameStatus = true;
-				mobCounter++;
-			//get the path that has been created
-			//getPath();
-		});
-		
-		
-		
-		$('#path').on('click',function(){
-		
-			pathDone = true;
-		});
+			gameStatus = true;
+			mobCounter = Math.pow(round,2);
+			
+			if(round == 2)
+				mobSpeed = 1;
+			else if (round == 3)
+				mobSpeed = 2;
+			else if (round == 4)
+				mobSpeed = 3;
+			else if (round == 5)
+				mobSpeed = 4;
+			
+		});		
 	});
 	
 	
 	function refreshNumberOfLifeLeft(){
-			$('#life').text("life left :" + life);
+			$('#life').text("life left : " + life);
+	}
+	
+	function refreshNumberOfMobLeft(){
+		$('#mobLeft').text("Enemies left : " + mobLeft);
 	}

@@ -15,8 +15,14 @@ var canvas,
 	var NumberOfRow, NumberOfCol;
 	var index = 0;
 	var life = 10;
-	var mobCounter = 0;
+	var round = 1;
+	var mobCounter = Math.pow(round,2);
+	var mobLeft = Math.pow(round,2);
 	var firstMob = true;
+	var activeTower = "";
+	var mobSpeed = 0.5;
+	var pathDone = false;
+	var gameStatus = false;
 
 window.onload = function(){
 
@@ -68,23 +74,8 @@ function initializeCanvas(){
 		for(var row = 0; row < NumberOfRow; row++){
 			for(var col = 0; col < NumberOfCol; col++){
 				var selectedCell = grid[row][col];
-				if (mousePos.y > selectedCell.y && mousePos.y < selectedCell.y + selectedCell.height && mousePos.x > selectedCell.x && mousePos.x < selectedCell.x + selectedCell.width) {
-				
-						// if(activeTower == ""){
-							// if(!pathDone){
-							// if(numberOfTrackLeft > 0){
-								// // if(!selectedCell.isPath){
-										// // selectedCell.isPath = true;
-										// // numberOfTrackLeft--;
-											// // path[pathIndex] = selectedCell;
-											// // pathIndex++;
-										// // actualiserNumberOfPath();
-									// // }
-								// }
-								// //getPath();
-							// }
-						// }
-						// else{
+				if (mousePos.y > selectedCell.y && mousePos.y < selectedCell.y + selectedCell.height && mousePos.x > selectedCell.x && mousePos.x < selectedCell.x + selectedCell.width) {			
+						if(!selectedCell.isPath && !selectedCell.isBase){
 							var color = "";
 							var range = "";
 							var colorRange = "";
@@ -106,8 +97,7 @@ function initializeCanvas(){
 							
 							t = new tower(selectedCell.x, selectedCell.y,selectedCell.width, selectedCell.height, color, range, colorRange, activeTower);
 							selectedCell.tower = t;
-							//selectedCell.isHover = true;
-						//}
+						}
 					}
 				}
 			}
@@ -589,6 +579,7 @@ function rocket(x, y, width, height, type, speed, target){
 	this.speed = speed;
 	this.target = target;
 	this.targetLocked = false;
+	this.targetAlreadyDestroyed = false;
 
 	rockets[rocketIndex] = this;
 	this.id = rocketIndex;
@@ -604,12 +595,24 @@ function rocket(x, y, width, height, type, speed, target){
 			this.x += this.vx;
 			this.y += this.vy;	
 		}
+		if(this.targetAlreadyDestroyed){
+			this.x += this.vx;
+			this.y += this.vy;	
+		}
 		
 		if(this.type == "red"){
 			c.fillStyle = "rgba(231,76,60,0.9)";
 			c.fillRect(this.x,this.y,this.width,this.height);
 		} 
 	
+	}
+	
+	this.implode = function(){
+	
+		for(var i = 0; i < 50; i++){	
+			new particle(this.x + this.width / 2, this.y + this.height / 2);		
+		}
+		
 	}
 
 
@@ -619,15 +622,16 @@ function createNewMobs(){
 
 	if(gameStatus)
 	{
-		if(mobCounter < 50){
-			new mob(0,0,40,40,"losange",10,0,0.50,"rgba(73,242,222,0.7)");
-			mobCounter++;		
+		if(mobCounter > 0){
+			new mob(0,0,40,40,"losange",10,0,mobSpeed,"rgba(73,242,222,0.7)");
+			mobCounter--;		
 		}
 	}
 }
 
 function shootRockets(){
-
+	if(gameStatus)
+	{
 		for(var ce in cells){
 			for(var m in mobs){
 				if(cells[ce].tower != null){
@@ -652,7 +656,7 @@ function shootRockets(){
 				}
 			}
 		}
-
+	}
 }
 
 function intersect(rectA, rectB) {
@@ -766,8 +770,18 @@ setInterval(function(){
 												if(rockets[r2].target.id == rockets[ro].target.id){
 													mobs[m2].hit();
 													//rocket lost his target since it's been destroyed, so it wanders off
-													rockets[r2].target.id = -1;
-													rockets[r2].targetLocked = false;
+													
+													
+													rockets[r2].implode();
+													delete rockets[r2];
+													
+													
+													//var vy = Math.floor((Math.random() * 8) + 1) -4;
+													//var vx = Math.floor((Math.random() * 8) + 1) -4;
+													//rockets[r2].target.id = -1;
+													//rockets[r2].vx = vx;
+													//rockets[r2].vy = vy;
+													//rockets[r2].targetAlreadyDestroyed = true;
 													
 													//delete rockets[r2];
 													//var newTarget = false;
@@ -783,9 +797,11 @@ setInterval(function(){
 													//	delete rockets[r2]
 												}
 											}
+											mobLeft--;
+											refreshNumberOfMobLeft();
 											delete mobs[m2];
 											delete rockets[ro];
-											break;
+											//break;
 										}
 									}
 								}											
