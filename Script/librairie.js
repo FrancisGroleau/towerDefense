@@ -396,11 +396,11 @@ function cell(x, y, width, height, borderColor, color, isPath){
 	
 	this.draw = function(){
 		if(this.isPath){	
-			c.fillStyle = "rgba(4,33,48,0.2)";
+			c.fillStyle = "rgba(4,33,48,0.3)";
 			c.fillRect(this.x,this.y,this.width,this.height);	
 		}
 		else if(this.isBase){
-			c.fillStyle = "rgba(250,242,0,0.1)";
+			c.fillStyle = "rgba(250,242,0,0.3)";
 			c.fillRect(this.x,this.y,this.width,this.height);
 		}
 		else if(this.leftArrow){
@@ -524,7 +524,7 @@ function mob(x, y, width, height, type, life, resistance, speed, color){
 	}
 	
 	this.hit = function(){	
-		for(var i = 0; i < 200; i++){	
+		for(var i = 0; i < 400; i++){	
 			new particle(this.x + this.width / 2, this.y + this.height / 2);		
 		}
 	}
@@ -548,7 +548,7 @@ function particle(posX,posY){
 		this.color = "rgba( 255," + parseInt(Math.floor(Math.random() * 255)) + ",0,0.5)";
 		//this.color = "hsl(" + parseInt(Math.random() * 360) +",50%,50%)";
 		//number between 1 and 100
-		this.maxLife = Math.floor((Math.random()*200)+1);
+		this.maxLife = Math.floor((Math.random()*50)+1);
 		
 		
 		particleIndex++;
@@ -752,56 +752,47 @@ setInterval(function(){
 									//continue;
 								}
 								
-							}else{
-									var targetDead = false
-									var mobsToDelete = {};
-									var mobsToDeleteIndex = 0;
-									
-									for(var m2 in mobs){
-										for(var r in rockets){
-											if(!targetDead){
-												if(mobs[m2].id == rockets[r].target.id){
-													if(mobs[m2].life > 1){
-														mobs[m2].life -= 5;
-														mobs[m2].hit();
-														delete rockets[r];
-													}else{
-														targetDead = true;
-														//re-assign target
-														//delete rockets[ro];
-														for(var r2 in rockets){
-															if(mobs[m2].id == rockets[r2].target.id){
-																delete rockets[r];
-																//rockets[r2].targetLocked = false;
-															}
-														}
-														delete mobs[m2];
-														break;
-														//if(m2 - 1 > 0){
-														//	rockets[r].target = mobs[m2 - 1];
-														//}
-														//mobsToDelete[mobsToDeleteIndex] = mobs[m2];
-														//mobsToDeleteIndex++;
-													}
+							}else{								
+								for(var m2 in mobs){
+									if(mobs[m2].id ==  rockets[ro].target.id){
+										if(mobs[m2].life - 5 > 0){
+											mobs[m2].life -= 5;
+											mobs[m2].hit();
+											delete rockets[ro];
+											break;
+										}else{
+											for(var r2 in rockets){
+												if(rockets[r2].target.id == rockets[ro].target.id){
+													mobs[m2].hit();
+													//rocket lost his target since it's been destroyed, so it wanders off
+													rockets[r2].target.id = -1;
+													rockets[r2].targetLocked = false;
+													
+													//delete rockets[r2];
+													//var newTarget = false;
+													//Ugly hack to assign the first mob in the object mobs to the rocket who just lost his
+													//for(var m3 in mobs){
+													//	newTarget = mobs[m3];
+													//	break;	
+													//}
+													//If we still have mobs to kill assign, else well destroy the rocket ...
+													//if(newTarget != false)
+													//	rockets[r2].target = newTarget;	
+													//else
+													//	delete rockets[r2]
 												}
 											}
+											delete mobs[m2];
+											delete rockets[ro];
+											break;
 										}
 									}
-									// for(var m3 in mobs){
-										// for(var m4 in mobsToDelete){
-											// if(mobs[m3].id == mobsToDelete[m4].id){
-												// delete mobs[m3];
-												// delete mobsToDelete[m4];
-											// }
-										// }		
-									// }
-							} 
-								
+								}											
+							} 		
 						}
 					}
 				}
-		
-		}
+		}//end of game Status
 			
 			
 			
@@ -845,7 +836,7 @@ setInterval(function(){
 	
 setInterval(createNewMobs,9000);
 		
-setInterval(shootRockets,3000);
+setInterval(shootRockets,5000);
 	
 
 
