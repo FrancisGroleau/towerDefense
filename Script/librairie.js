@@ -513,15 +513,30 @@ function mob(x, y, width, height, type, life, resistance, speed, color){
 	
 	}
 	
-	this.hit = function(){	
-		for(var i = 0; i < 400; i++){	
-			new particle(this.x + this.width / 2, this.y + this.height / 2);		
+	this.hit = function(rocket){	
+	
+		this.life -= rocket.strenght;
+		
+		if(this.life > 0){
+			if(rocket.type == "red"){
+				for(var i = 0; i < 100; i++){	
+						new particle(this.x + this.width / 2, this.y + this.height / 2,"rgba(231,76,60,0.5)");
+				}
+			}else if(rocket.type == "green"){
+				for(var i = 0; i < 50; i++){	
+					new particle(this.x + this.width / 2, this.y + this.height / 2,"rgba(0,188,140,0.5)");
+				}		
+			}
+		}else{
+			for(var i = 0; i < 400; i++){	
+						new particle(this.x + this.width / 2, this.y + this.height / 2,"rgba(255," + Math.random() * 255 + ",0,0.5)");
+			}
 		}
 	}
 
 }
 
-function particle(posX,posY){
+function particle(posX,posY,color){
 		this.x = posX;
 		this.y = posY;
 		this.vx = Math.random() * 10 - 5;
@@ -535,7 +550,7 @@ function particle(posX,posY){
 		
 		
 		this.life = 0;
-		this.color = "rgba( 255," + parseInt(Math.floor(Math.random() * 255)) + ",0,0.5)";
+		this.color = color;
 		//this.color = "hsl(" + parseInt(Math.random() * 360) +",50%,50%)";
 		//number between 1 and 100
 		this.maxLife = Math.floor((Math.random()*50)+1);
@@ -557,6 +572,7 @@ function particle(posX,posY){
 				delete particles[this.id];
 			}
 			
+			
 			//the actual draw
 			c.beginPath();
 			c.arc(this.x, this.y, 2, 0, 2 * Math.PI, false);
@@ -565,7 +581,7 @@ function particle(posX,posY){
 		}
 }
 
-function rocket(x, y, width, height, type, speed, target){
+function rocket(x, y, width, height, type, speed, target, strenght){
 
 	this.x = x;
 	this.y = y;
@@ -577,6 +593,7 @@ function rocket(x, y, width, height, type, speed, target){
 	this.height = height;
 	this.type = type;
 	this.speed = speed;
+	this.strenght = strenght;
 	this.target = target;
 	this.targetLocked = false;
 	this.targetAlreadyDestroyed = false;
@@ -603,14 +620,25 @@ function rocket(x, y, width, height, type, speed, target){
 		if(this.type == "red"){
 			c.fillStyle = "rgba(231,76,60,0.9)";
 			c.fillRect(this.x,this.y,this.width,this.height);
-		} 
+		}else if(this.type == "green"){
+			c.beginPath();
+			c.arc(this.x, this.y, 2, 0, 2 * Math.PI, false);
+			c.fillStyle = "rgba(0,188,140,0.5)";
+			c.fill();
+		}
 	
 	}
 	
 	this.implode = function(){
 	
-		for(var i = 0; i < 50; i++){	
-			new particle(this.x + this.width / 2, this.y + this.height / 2);		
+		if(this.type == "red"){
+			for(var i = 0; i < 50; i++){	
+				new particle(this.x + this.width / 2, this.y + this.height / 2,"rgba(231,76,60,0.5)");
+			}
+		}else if(this.type = "green"){
+			for(var i = 0; i < 20; i++){	
+				new particle(this.x + this.width / 2, this.y + this.height / 2,"rgba(0,188,140,0.5)");
+			}
 		}
 		
 	}
@@ -629,7 +657,7 @@ function createNewMobs(){
 	}
 }
 
-function shootRockets(){
+function shootRedRockets(){
 	if(gameStatus)
 	{
 		for(var ce in cells){
@@ -638,21 +666,35 @@ function shootRockets(){
 					if(cells[ce].tower.type == "red"){
 						if((((cells[ce].x + (cells[ce].width / 2)) + cells[ce].tower.range) >= mobs[m].x) && (((cells[ce].y + (cells[ce].height / 2)) + cells[ce].tower.range) >= mobs[m].y) && 
 						   (((cells[ce].x + (cells[ce].width / 2)) - cells[ce].tower.range) <= mobs[m].x) && (((cells[ce].y + (cells[ce].height / 2)) - cells[ce].tower.range) <= mobs[m].y)){
-								var vy = Math.floor((Math.random() * 8) + 1) -4;
-								var vx = Math.floor((Math.random() * 8) + 1) -4;
-								
-								//if(rocketIndex < 20){
-								
-								
-										var r = new rocket((cells[ce].x + (cells[ce].width / 2)),(cells[ce].y + (cells[ce].height / 2)),12,12,"red",2,mobs[m]);
-										r.vx = vx;
-										r.vy = vy;
-										break;
-										//return;
-							
-								//}
+										var vx = Math.random() * 10 - 5;
+										var vy = Math.random() * 10 - 5;
+
+								var r = new rocket((cells[ce].x + (cells[ce].width / 2)),(cells[ce].y + (cells[ce].height / 2)),12,12,"red",2,mobs[m],5);
+								r.vx = vx;
+								r.vy = vy;
+								break;
 						}
-					}
+					}	
+				}
+			}
+		}
+	}
+}
+
+function shootGreenRockets(){
+	if(gameStatus)
+	{
+		for(var ce in cells){
+			for(var m in mobs){
+				if(cells[ce].tower != null){
+					if(cells[ce].tower.type == "green"){
+						if((((cells[ce].x + (cells[ce].width / 2)) + cells[ce].tower.range) >= mobs[m].x) && (((cells[ce].y + (cells[ce].height / 2)) + cells[ce].tower.range) >= mobs[m].y) && 
+						   (((cells[ce].x + (cells[ce].width / 2)) - cells[ce].tower.range) <= mobs[m].x) && (((cells[ce].y + (cells[ce].height / 2)) - cells[ce].tower.range) <= mobs[m].y)){
+								var r = new rocket((cells[ce].x + (cells[ce].width / 2)),(cells[ce].y + (cells[ce].height / 2)),12,12,"green",2,mobs[m],1);
+								r.targetLocked = true;
+								break;
+						}
+					}	
 				}
 			}
 		}
@@ -731,14 +773,12 @@ setInterval(function(){
 									
 					for(var ro in rockets){
 					
-						if(rockets[ro].x > rockets[ro].originX + 100 || rockets[ro].y > rockets[ro].originY + 100 || rockets[ro].x < rockets[ro].originX - 100 ||  rockets[ro].y < rockets[ro].originY){
+						if((rockets[ro].x > rockets[ro].originX + 100 || rockets[ro].y > rockets[ro].originY + 100 || rockets[ro].x < rockets[ro].originX - 100 ||  rockets[ro].y < rockets[ro].originY) && rockets[ro].type == "red") {
 							rockets[ro].targetLocked = true;
 						}
 					
 						if(rockets[ro].targetLocked && rockets[ro].target){
 						
-							//if(!((rockets[ro].x > rockets[ro].target.x) && (rockets[ro].x < (rockets[ro].target.x + rockets[ro].target.width))) && 
-							//   !((rockets[ro].y > rockets[ro].target.y) && (rockets[ro].y < (rockets[ro].target.y + rockets[ro].target.height)))){
 							if(!intersect(rockets[ro],rockets[ro].target)){
 								if(rockets[ro].target.x > rockets[ro].x){
 									rockets[ro].x += rockets[ro].speed;
@@ -759,50 +799,55 @@ setInterval(function(){
 								
 							}else{								
 								for(var m2 in mobs){
-									if(mobs[m2].id ==  rockets[ro].target.id){
-										if(mobs[m2].life - 5 > 0){
-											mobs[m2].life -= 5;
-											mobs[m2].hit();
-											delete rockets[ro];
-											break;
-										}else{
-											for(var r2 in rockets){
-												if(rockets[r2].target.id == rockets[ro].target.id){
-													mobs[m2].hit();
-													//rocket lost his target since it's been destroyed, so it wanders off
-													
-													
-													rockets[r2].implode();
-													delete rockets[r2];
-													
-													
-													//var vy = Math.floor((Math.random() * 8) + 1) -4;
-													//var vx = Math.floor((Math.random() * 8) + 1) -4;
-													//rockets[r2].target.id = -1;
-													//rockets[r2].vx = vx;
-													//rockets[r2].vy = vy;
-													//rockets[r2].targetAlreadyDestroyed = true;
-													
-													//delete rockets[r2];
-													//var newTarget = false;
-													//Ugly hack to assign the first mob in the object mobs to the rocket who just lost his
-													//for(var m3 in mobs){
-													//	newTarget = mobs[m3];
-													//	break;	
-													//}
-													//If we still have mobs to kill assign, else well destroy the rocket ...
-													//if(newTarget != false)
-													//	rockets[r2].target = newTarget;	
-													//else
-													//	delete rockets[r2]
+									if(rockets[ro] != undefined){
+										if(mobs[m2].id == rockets[ro].target.id){
+										
+											mobs[m2].hit(rockets[ro]);
+											//is it dead ?
+											if(mobs[m2].life > 0){								
+												delete rockets[ro];
+												break;
+											}else{
+												for(var r2 in rockets){
+													if(rockets[r2].target.id == rockets[ro].target.id){
+														mobs[m2].hit(rockets[ro]);
+														//rocket lost his target since it's been destroyed, so it wanders off
+														
+														
+														rockets[r2].implode();
+														delete rockets[r2];
+														
+														
+														//var vy = Math.floor((Math.random() * 8) + 1) -4;
+														//var vx = Math.floor((Math.random() * 8) + 1) -4;
+														//rockets[r2].target.id = -1;
+														//rockets[r2].vx = vx;
+														//rockets[r2].vy = vy;
+														//rockets[r2].targetAlreadyDestroyed = true;
+														
+														//delete rockets[r2];
+														//var newTarget = false;
+														//Ugly hack to assign the first mob in the object mobs to the rocket who just lost his
+														//for(var m3 in mobs){
+														//	newTarget = mobs[m3];
+														//	break;	
+														//}
+														//If we still have mobs to kill assign, else well destroy the rocket ...
+														//if(newTarget != false)
+														//	rockets[r2].target = newTarget;	
+														//else
+														//	delete rockets[r2]
+													}
 												}
+												mobLeft--;
+												refreshNumberOfMobLeft();
+												delete mobs[m2];
+												delete rockets[ro];
+												//break;
 											}
-											mobLeft--;
-											refreshNumberOfMobLeft();
-											delete mobs[m2];
-											delete rockets[ro];
-											//break;
 										}
+									}else{
+										break;
 									}
 								}											
 							} 		
@@ -851,9 +896,9 @@ setInterval(function(){
 
 	},1000 / 60);
 	
-setInterval(createNewMobs,9000);
+setInterval(createNewMobs,(100000 - (Math.pow(round,2) * 500)));
 		
-setInterval(shootRockets,5000);
+setInterval(shootRedRockets,5000);
 	
-
+setInterval(shootGreenRockets,1000);
 
