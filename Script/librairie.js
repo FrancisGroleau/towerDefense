@@ -527,11 +527,12 @@ function mob(x, y, width, height, type, life, resistance, speed, color){
 					new particle(this.x + this.width / 2, this.y + this.height / 2,"rgba(0,188,140,0.5)");
 				}		
 			}
-		}else{
-			for(var i = 0; i < 400; i++){	
+		}
+	}
+	this.die() = function(){
+		for(var i = 0; i < 400; i++){	
 						new particle(this.x + this.width / 2, this.y + this.height / 2,"rgba(255," + Math.random() * 255 + ",0,0.5)");
 			}
-		}
 	}
 
 }
@@ -810,7 +811,7 @@ setInterval(function(){
 											}else{
 												for(var r2 in rockets){
 													if(rockets[r2].target.id == rockets[ro].target.id){
-														mobs[m2].hit(rockets[ro]);
+														mobs[m2].die();
 														//rocket lost his target since it's been destroyed, so it wanders off
 														
 														
@@ -896,7 +897,7 @@ setInterval(function(){
 
 	},1000 / 60);
 	
-setInterval(createNewMobs,(100000 - (round * 1000)));
+setInterval(createNewMobs,(10000 - (round * 100) ));
 		
 setInterval(shootRedRockets,5000);
 	
