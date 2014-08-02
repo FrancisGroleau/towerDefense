@@ -8,7 +8,9 @@ var canvas,
 	path = {},
 	pathIndex = 0,
 	rockets = {},
-	rocketIndex = 0;
+	rocketIndex = 0,
+	particles = {},
+	particleIndex = 0;
 	var grid = [];
 	var NumberOfRow, NumberOfCol;
 	var index = 0;
@@ -93,7 +95,7 @@ function initializeCanvas(){
 								}
 								else if(activeTower == "red"){
 									color = "rgba(231,76,60,0.5)";
-									colorRange = "rgba(231,76,60,0.2)";
+									colorRange = "rgba(231,76,60,0.05)";
 									range = 260;
 								}
 								else if(activeTower == "purple"){
@@ -394,7 +396,7 @@ function cell(x, y, width, height, borderColor, color, isPath){
 	
 	this.draw = function(){
 		if(this.isPath){	
-			c.fillStyle = "rgba(4,33,48,0.5)";
+			c.fillStyle = "rgba(4,33,48,0.2)";
 			c.fillRect(this.x,this.y,this.width,this.height);	
 		}
 		else if(this.isBase){
@@ -430,7 +432,7 @@ function cell(x, y, width, height, borderColor, color, isPath){
 				c.rect(this.x,this.y,this.width,this.height);
 			c.stroke(); 
 			
-			c.fillStyle = "rgba(0,0,0,0.5)";
+			c.fillStyle = "rgba(0,0,0,0.2)";
 			c.fillRect(this.x,this.y,this.width,this.height);
 		}
 		
@@ -520,10 +522,60 @@ function mob(x, y, width, height, type, life, resistance, speed, color){
 		} 
 	
 	}
+	
+	this.hit = function(){	
+		for(var i = 0; i < 200; i++){	
+			new particle(this.x + this.width / 2, this.y + this.height / 2);		
+		}
+	}
 
 }
 
-function rocket(x, y, width, height, type, target){
+function particle(posX,posY){
+		this.x = posX;
+		this.y = posY;
+		this.vx = Math.random() * 10 - 5;
+		this.vy = Math.random() * 10 - 5;
+		
+		//Code by guyhaume to make the repartition of the particle in a more rounded way
+		this.len = Math.sqrt(this.vx * this.vx + this.vy * this.vy) / (Math.random() * 4);
+		this.vx /= this.len;
+		this.vy /= this.len;
+		
+		
+		
+		this.life = 0;
+		this.color = "rgba( 255," + parseInt(Math.floor(Math.random() * 255)) + ",0,0.5)";
+		//this.color = "hsl(" + parseInt(Math.random() * 360) +",50%,50%)";
+		//number between 1 and 100
+		this.maxLife = Math.floor((Math.random()*200)+1);
+		
+		
+		particleIndex++;
+		//add the new particle to the object
+		particles[particleIndex] = this;		
+		this.id = particleIndex;
+		
+		
+		
+		this.draw = function(){
+			this.x += this.vx;
+			this.y += this.vy;
+			
+			this.life++;
+			if(this.life >= this.maxLife){
+				delete particles[this.id];
+			}
+			
+			//the actual draw
+			c.beginPath();
+			c.arc(this.x, this.y, 2, 0, 2 * Math.PI, false);
+			c.fillStyle = this.color;
+			c.fill();
+		}
+}
+
+function rocket(x, y, width, height, type, speed, target){
 
 	this.x = x;
 	this.y = y;
@@ -534,7 +586,7 @@ function rocket(x, y, width, height, type, target){
 	this.width = width;
 	this.height = height;
 	this.type = type;
-	this.life = life;
+	this.speed = speed;
 	this.target = target;
 	this.targetLocked = false;
 
@@ -568,7 +620,7 @@ function createNewMobs(){
 	if(gameStatus)
 	{
 		if(mobCounter < 50){
-			new mob(0,0,40,40,"losange",10,0,0.50,"rgba(73,242,222,0.9)");
+			new mob(0,0,40,40,"losange",10,0,0.50,"rgba(73,242,222,0.7)");
 			mobCounter++;		
 		}
 	}
@@ -582,13 +634,13 @@ function shootRockets(){
 					if(cells[ce].tower.type == "red"){
 						if((((cells[ce].x + (cells[ce].width / 2)) + cells[ce].tower.range) >= mobs[m].x) && (((cells[ce].y + (cells[ce].height / 2)) + cells[ce].tower.range) >= mobs[m].y) && 
 						   (((cells[ce].x + (cells[ce].width / 2)) - cells[ce].tower.range) <= mobs[m].x) && (((cells[ce].y + (cells[ce].height / 2)) - cells[ce].tower.range) <= mobs[m].y)){
-								var vy = Math.floor((Math.random() * 6) + 1) -3;
-								var vx = Math.floor((Math.random() * 6) + 1) -3;
+								var vy = Math.floor((Math.random() * 4) + 1) -2;
+								var vx = Math.floor((Math.random() * 4) + 1) -2;
 								
 								//if(rocketIndex < 20){
 								
 								
-										var r = new rocket((cells[ce].x + (cells[ce].width / 2)),(cells[ce].y + (cells[ce].height / 2)),12,12,"red",mobs[m]);
+										var r = new rocket((cells[ce].x + (cells[ce].width / 2)),(cells[ce].y + (cells[ce].height / 2)),12,12,"red",2,mobs[m]);
 										r.vx = vx;
 										r.vy = vy;
 										return;
@@ -601,6 +653,14 @@ function shootRockets(){
 		}
 
 }
+
+function intersect(rectA, rectB) {
+  return !(rectA.x + rectA.width < rectB.x ||
+           rectB.x + rectB.width < rectA.x ||
+           rectA.y + rectA.height < rectB.y ||
+           rectB.y + rectB.height < rectA.y);
+}; 
+
 //game loop
 setInterval(function(){
 
@@ -651,7 +711,7 @@ setInterval(function(){
 						//console.log("mob : x:" + mobs[m].x + " y:" + mobs[m].y + " cy:" + mobs[m].nextCheckPointY + " cx:" + mobs[m].nextCheckPointX );
 					}else{
 						if(life > 0){
-							life-=2;
+							life--;
 							refreshNumberOfLifeLeft();
 						}else{
 							gameStatus = false;
@@ -666,47 +726,76 @@ setInterval(function(){
 									
 					for(var ro in rockets){
 					
-						if(rockets[ro].x > rockets[ro].originX + 100 || rockets[ro].y > rockets[ro].originY + 100){
+						if(rockets[ro].x > rockets[ro].originX + 100 || rockets[ro].y > rockets[ro].originY + 100 || rockets[ro].x < rockets[ro].originX - 100 ||  rockets[ro].y < rockets[ro].originY){
 							rockets[ro].targetLocked = true;
 						}
 					
-						if(rockets[ro].targetLocked){
-							if(rockets[ro].target.x != rockets[ro].x || rockets[ro].target.y != rockets[ro].y){
+						if(rockets[ro].targetLocked && rockets[ro].target){
+						
+							//if(!((rockets[ro].x > rockets[ro].target.x) && (rockets[ro].x < (rockets[ro].target.x + rockets[ro].target.width))) && 
+							//   !((rockets[ro].y > rockets[ro].target.y) && (rockets[ro].y < (rockets[ro].target.y + rockets[ro].target.height)))){
+							if(!intersect(rockets[ro],rockets[ro].target)){
 								if(rockets[ro].target.x > rockets[ro].x){
-									rockets[ro].x += 2;
+									rockets[ro].x += rockets[ro].speed;
 									//continue;
 								}
 								if(rockets[ro].target.x < rockets[ro].x){
-									rockets[ro].x -= 2;
+									rockets[ro].x -= rockets[ro].speed;
 									//continue;
 								}
 								if(rockets[ro].target.y > rockets[ro].y){
-									rockets[ro].y += 2;
+									rockets[ro].y += rockets[ro].speed;
 									//continue;
 								}
 								if(rockets[ro].target.y < rockets[ro].y){
-									rockets[ro].y -= 2;
+									rockets[ro].y -= rockets[ro].speed;
 									//continue;
 								}
 								
 							}else{
-									var mobToDelete = "";
+									var targetDead = false
+									var mobsToDelete = {};
+									var mobsToDeleteIndex = 0;
+									
 									for(var m2 in mobs){
 										for(var r in rockets){
-											if(mobs[m2].id == rockets[r].target.id){
-												if(mobs[m2].life > 0){
-													mobs[m2].life--;
-													delete rockets[ro];
-												}else{
-													mobToDelete = mobs[m2];
+											if(!targetDead){
+												if(mobs[m2].id == rockets[r].target.id){
+													if(mobs[m2].life > 1){
+														mobs[m2].life -= 5;
+														mobs[m2].hit();
+														delete rockets[r];
+													}else{
+														targetDead = true;
+														//re-assign target
+														//delete rockets[ro];
+														for(var r2 in rockets){
+															if(mobs[m2].id == rockets[r2].target.id){
+																delete rockets[r];
+																//rockets[r2].targetLocked = false;
+															}
+														}
+														delete mobs[m2];
+														break;
+														//if(m2 - 1 > 0){
+														//	rockets[r].target = mobs[m2 - 1];
+														//}
+														//mobsToDelete[mobsToDeleteIndex] = mobs[m2];
+														//mobsToDeleteIndex++;
+													}
 												}
 											}
 										}
-										if(mobToDelete != "" && mobs[m2].id == mobToDelete.id){
-											delete mobs[m2];
-										}	
 									}
-							}
+									// for(var m3 in mobs){
+										// for(var m4 in mobsToDelete){
+											// if(mobs[m3].id == mobsToDelete[m4].id){
+												// delete mobs[m3];
+												// delete mobsToDelete[m4];
+											// }
+										// }		
+									// }
+							} 
 								
 						}
 					}
@@ -724,13 +813,21 @@ setInterval(function(){
 		for( var ce in cells){	
 			cells[ce].draw();
 		}
+					
+		//then all the rocket
+		for( var ro in rockets){
+			rockets[ro].draw();
+		}
+		
+		//then all the particle
+		for(var p in particles){
+				particles[p].draw();
+		}
 		
 		//then all the mobs
 		for(var m in mobs){
 			mobs[m].draw();
 		}
-
-	
 		
 		//then draw all tower
 		for(var row = 0; row < NumberOfRow; row++){
@@ -740,15 +837,13 @@ setInterval(function(){
 			}
 		}
 		
-			//then all the rocket
-		for( var ro in rockets){
-			rockets[ro].draw();
-		}
-	
+
+		//c.fillStyle = "rgba(0,0,0,0.02)";
+		//c.fillRect(0,0,canvas.width,canvas.height);
 
 	},1000 / 60);
 	
-setInterval(createNewMobs,5000);
+setInterval(createNewMobs,9000);
 		
 setInterval(shootRockets,3000);
 	
