@@ -529,7 +529,7 @@ function mob(x, y, width, height, type, life, resistance, speed, color){
 			}
 		}
 	}
-	this.die() = function(){
+	this.die = function(){
 		for(var i = 0; i < 400; i++){	
 						new particle(this.x + this.width / 2, this.y + this.height / 2,"rgba(255," + Math.random() * 255 + ",0,0.5)");
 			}
