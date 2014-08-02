@@ -22,7 +22,7 @@ var gameStatus = false;
 		});*/
 		
 		$('#nextRound').text("start round " + round++);
-		$('#numberOfPath').text("Number of track left " + numberOfTrackLeft);
+		$('#life').text("life left :" + life);
 		
 		$('#nextRound').on('click',function(){
 				
@@ -37,13 +37,14 @@ var gameStatus = false;
 		});
 		
 		
+		
 		$('#path').on('click',function(){
 		
 			pathDone = true;
 		});
 	});
 	
-	function actualiserNumberOfPath(){
 	
-		$('#numberOfPath').text("Number of track left " + numberOfTrackLeft);
+	function refreshNumberOfLifeLeft(){
+			$('#life').text("life left :" + life);
 	}
